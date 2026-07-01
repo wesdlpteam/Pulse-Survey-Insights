@@ -70,3 +70,4 @@ Core index.html edit = SINGLE OWNER (lead). Prep + verification = parallel agent
 | # | Claim | Oracle | Result |
 |---|---|---|---|
 | W2-1 | Identifier/PII columns (Id, Email, Timestamp, Student ID) excluded from all analysis; real measures (Age, Score, Q1 Rating) kept. | live-path on pii + edge fixtures + a11y, vs the expected-columns answer key | CONFIRMED - matches the key; Average now shows the real rating, not Id. Gemini red-team unavailable (503), used edge fixtures instead. |
+| W2-2 | Opt-in OpenAI comment summary: only scrubbed comments sent, no Id/Email/Timestamp; key in localStorage only; opt-in + consent; a11y clean. | independent ai-privacy.mjs (captures the real request body) + lead code read + axe | CONFIRMED safe (piiLeaks==[]). Built by Sonnet, verified by lead (Fable). CORS vs real OpenAI unverified (no live key). |

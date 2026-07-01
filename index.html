@@ -99,6 +99,8 @@ button{ font-family:inherit; cursor:pointer; }
 .btn--ghost{ background:#fff; color:var(--brand); border-color:var(--line-strong); } .btn--ghost:hover{ border-color:var(--brand); background:var(--lilac-25); }
 .btn--sm{ padding:.48rem .8rem; font-size:.84rem; }
 .btn svg{ width:16px; height:16px; }
+.btn:disabled,.btn:disabled:hover{ background:var(--line); color:var(--muted); border-color:var(--line); cursor:not-allowed; }
+.btn[hidden]{ display:none; }
 
 /* ============================================================ UPLOAD (empty state) ============================================================ */
 .upload{ padding-block:clamp(2.4rem,7vw,4.5rem); }
@@ -197,6 +199,29 @@ main{ padding-bottom:4rem; }
 .dlist li::before{ content:""; position:absolute; left:0; top:.5em; width:7px; height:7px; border-radius:50%; background:var(--gold); }
 .dlist li strong{ color:var(--ink); font-weight:700; }
 
+/* ---- AI summary (opt-in) ---- */
+.ai-card p{ font-size:.92rem; color:var(--ink-2); line-height:1.55; max-width:70ch; }
+.ai-card h3{ font-size:1.05rem; font-weight:700; color:var(--ink); }
+.ai-field{ margin-top:1.3rem; }
+.ai-field label{ display:block; font-size:.82rem; font-weight:700; color:var(--ink-2); margin-bottom:.4rem; }
+.ai-field__row{ display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; }
+.ai-field__row input[type="password"]{ flex:1 1 240px; min-width:200px; border:1px solid var(--line-strong); border-radius:var(--r-sm); padding:.6rem .85rem; font-size:.92rem; font-family:inherit; color:var(--ink); background:#fff; }
+.ai-help{ margin-top:.55rem; font-size:.82rem; color:var(--muted); line-height:1.5; max-width:70ch; }
+.ai-consent{ margin-top:1.3rem; padding-top:1.1rem; border-top:1px solid var(--line); }
+.ai-consent__row{ display:flex; align-items:flex-start; gap:.6rem; font-size:.92rem; color:var(--ink-2); cursor:pointer; max-width:70ch; }
+.ai-consent__row input[type="checkbox"]{ margin-top:.2rem; width:17px; height:17px; accent-color:var(--brand); flex:0 0 auto; }
+.ai-actions{ display:flex; align-items:center; gap:.9rem; flex-wrap:wrap; margin-top:1.3rem; }
+.ai-status{ font-size:.88rem; color:var(--muted); }
+.ai-status.is-err{ color:var(--neg-ink); font-weight:600; }
+.ai-banner{ background:var(--verdict-bg); border:1px solid var(--verdict-border); border-radius:var(--r-sm); padding:.75rem 1rem; font-size:.88rem; color:var(--ink-2); font-weight:600; margin-top:1.4rem; }
+.ai-blocks{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-top:1.1rem; }
+.ai-block h4{ font-size:.92rem; font-weight:700; color:var(--brand); margin-bottom:.6rem; }
+.ai-list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.6rem; }
+.ai-list li{ font-size:.88rem; color:var(--ink-2); line-height:1.5; }
+.ai-list strong{ color:var(--ink); }
+.ai-example{ display:block; margin-top:.2rem; color:var(--muted); font-style:italic; }
+.ai-raw{ margin-top:.6rem; background:var(--lilac-25); border:1px solid var(--line); border-radius:var(--r-sm); padding:.85rem; font-size:.82rem; white-space:pre-wrap; word-break:break-word; color:var(--ink-2); max-height:280px; overflow:auto; }
+
 /* ---- Empty / misc ---- */
 .muted-note{ color:var(--muted); font-size:.9rem; font-style:italic; }
 .toast{ position:fixed; left:50%; bottom:1.5rem; transform:translateX(-50%) translateY(150%); z-index:var(--z-toast); background:var(--ink); color:#fff; padding:.72rem 1.15rem; border-radius:var(--r-sm); font-size:.88rem; box-shadow:0 8px 28px rgba(42,20,48,.18); transition:transform .4s var(--ease); max-width:90vw; }
@@ -215,6 +240,7 @@ footer b{ color:var(--brand); }
 @media (max-width:720px){
   .action-grid{ grid-template-columns:1fr; }
   .filter-row__label{ min-width:100%; }
+  .ai-field__row{ flex-direction:column; align-items:stretch; }
 }
 </style>
 </head>
@@ -324,6 +350,42 @@ footer b{ color:var(--brand); }
           <ul class="dlist" id="actionList"></ul>
         </div></div>
       </div>
+    </section>
+
+    <!-- AI summary (opt-in, off by default) -->
+    <section class="section" id="aiPanel">
+      <div class="section__head"><span class="eyebrow muted">AI summary · optional</span></div>
+      <div class="card ai-card"><div class="card__pad">
+        <h3>Get an AI-written summary of the comments</h3>
+        <p>This is entirely optional. If you turn it on, the open-text comments from this report (never names, emails, IDs or any other column) are sent to OpenAI, who write a short summary back. Nothing is sent unless you add a key below and tick the consent box.</p>
+
+        <div class="ai-field">
+          <label for="aiKey">OpenAI API key</label>
+          <div class="ai-field__row">
+            <input type="password" id="aiKey" autocomplete="off" spellcheck="false" placeholder="Paste your OpenAI API key" />
+            <button class="btn btn--ghost btn--sm" id="aiKeySave" type="button">Save key</button>
+            <button class="btn btn--ghost btn--sm" id="aiKeyForget" type="button">Forget key</button>
+          </div>
+          <p class="ai-help" id="aiKeyState" aria-live="polite">No key saved in this browser yet.</p>
+          <p class="ai-help">Your key is stored only in this browser (in local storage) and is only ever sent to OpenAI. Remove it any time with Forget key. Do not save it on a shared or public computer.</p>
+        </div>
+
+        <div class="ai-consent">
+          <label class="ai-consent__row" for="aiConsent">
+            <input type="checkbox" id="aiConsent" />
+            <span>I understand the comments will be sent to OpenAI.</span>
+          </label>
+          <p class="ai-help">Open-text comments can contain personal details that people typed in themselves, even though names, emails and IDs are never included.</p>
+        </div>
+
+        <div class="ai-actions">
+          <button class="btn btn--primary" id="aiRun" type="button" disabled>Summarise with AI</button>
+          <button class="btn btn--ghost btn--sm" id="aiCancel" type="button" hidden>Cancel</button>
+          <span class="ai-status" id="aiStatus" role="status" aria-live="polite"></span>
+        </div>
+
+        <div id="aiResult"></div>
+      </div></div>
     </section>
   </main>
 </div>
@@ -534,6 +596,7 @@ function boot(name){
     `${fmtInt.format(State.rows.length)} responses across ${State.headers.length} questions. Filter by any dimension below; every panel recalculates live.`;
   buildFilterUI();
   render(true);
+  aiResetPanel();
   toast(`Loaded ${fmtInt.format(State.rows.length)} responses across ${State.headers.length} columns.`);
 }
 
@@ -937,7 +1000,225 @@ function renderVerdict(rows){
 }
 
 /* ============================================================================
-   10. UI HELPERS / MOTION
+   10. AI SUMMARY (opt-in) — sends ONLY open-text comments (no id/email/name/
+   timestamp/number columns, no raw rows) to OpenAI on explicit user action.
+   The API key never leaves this browser except in the Authorization header
+   of that one request, is stored only in localStorage, and is never written
+   into the DOM or logged.
+   ============================================================================ */
+const AI_KEY_STORAGE = "insight.openai.key";
+const AI_MODEL = "gpt-4o-mini"; // change this to a current OpenAI model if needed
+const AI_TIMEOUT_MS = 30000;
+const AI_MAX_COMMENTS = 300;
+const AI_EMAIL_RE = /[^\s@]+@[^\s@]+\.[^\s@]+/g;
+const AI_DIGITRUN_RE = /\d{7,}/g;
+
+const AI_SYSTEM_PROMPT = "You summarise anonymous survey comments for a school. You will receive a JSON array of short written comments and nothing else about the people who wrote them. Use ONLY the comments provided; do not add facts, names, numbers or examples that are not in them. If the comments do not support a clear conclusion, say so plainly. Quote comments word for word for examples. Write warmly and plainly for a non-technical reader, with no jargon and no em-dashes. Do not identify or speculate about individuals or repeat any personal detail. Return ONLY valid JSON of shape {\"praised\":[{\"theme\":\"\",\"example\":\"\"}],\"concerns\":[{\"theme\":\"\",\"example\":\"\"}],\"next_steps\":[\"\"]}. At most 3 praised, 3 concerns, 4 next_steps; each next step is one concrete action grounded only in the concerns.";
+
+let aiController = null;
+let aiTimer = null;
+
+function aiGetKey(){ try{ return localStorage.getItem(AI_KEY_STORAGE) || ""; }catch{ return ""; } }
+function aiHasKey(){ return !!aiGetKey(); }
+
+function aiSaveKey(){
+  const val = clean($("aiKey").value);
+  if (!val){ aiSetStatus("Paste your OpenAI key first, then save.", true); return; }
+  try{ localStorage.setItem(AI_KEY_STORAGE, val); }
+  catch{ aiSetStatus("Could not save the key in this browser.", true); return; }
+  $("aiKey").value = "";
+  aiSetKeyState();
+  aiSetStatus("Key saved in this browser.");
+  aiUpdateRunEnabled();
+}
+function aiForgetKey(){
+  try{ localStorage.removeItem(AI_KEY_STORAGE); }catch{ /* ignore */ }
+  $("aiKey").value = "";
+  aiSetKeyState();
+  aiSetStatus("Key removed from this browser.");
+  aiUpdateRunEnabled();
+}
+function aiSetKeyState(){
+  const el = $("aiKeyState"); if (!el) return;
+  el.textContent = aiHasKey() ? "A key is saved in this browser." : "No key saved in this browser yet.";
+}
+function aiUpdateRunEnabled(){
+  const btn = $("aiRun"); if (!btn) return;
+  btn.disabled = !(aiHasKey() && $("aiConsent").checked);
+}
+function aiSetStatus(msg, isErr){
+  const el = $("aiStatus"); if (!el) return;
+  el.textContent = msg || "";
+  el.classList.toggle("is-err", !!isErr);
+}
+function aiShowCancel(show){ const c = $("aiCancel"); if (c) c.hidden = !show; }
+
+/* scrub best-effort: emails and 7+ digit runs (phone/ID-like numbers) never leave the browser */
+function aiScrub(text){
+  return clean(text).replace(AI_EMAIL_RE, "[removed]").replace(AI_DIGITRUN_RE, "[removed]");
+}
+
+/* the pill-filter's first dimension, only if it's a genuine low-cardinality category
+   (never "multi" or anything else) — used as an optional coarse group label */
+function aiGroupCol(){
+  const col = State.filterCols[0];
+  if (!col) return null;
+  const meta = State.meta[col];
+  if (!meta || meta.type!=="categorical" || !lowCard(col)) return null;
+  return col;
+}
+
+/* Data minimisation: only comment strings from text-type columns of the CURRENT filtered view,
+   optionally paired with a coarse group label. Never sends id/email/name/timestamp/number columns
+   or raw rows. Capped at AI_MAX_COMMENTS. */
+function aiBuildComments(){
+  const rows = filteredRows();
+  const tcols = colsOfType("text");
+  const groupCol = aiGroupCol();
+  const all = [];
+  for (const col of tcols){
+    for (const r of rows){
+      if (isBlank(r[col])) continue;
+      const comment = aiScrub(r[col]);
+      if (!comment) continue;
+      all.push(groupCol ? { comment, group: clean(r[groupCol]) } : { comment });
+    }
+  }
+  return { comments: all.slice(0, AI_MAX_COMMENTS), total: all.length, truncated: all.length > AI_MAX_COMMENTS, questionCols: tcols };
+}
+
+function aiResetPanel(){
+  if (aiController) aiController.abort();
+  aiSetStatus("");
+  const res = $("aiResult"); if (res) res.innerHTML = "";
+  aiShowCancel(false);
+}
+
+async function aiRunSummary(){
+  const key = aiGetKey();
+  if (!key){ aiSetStatus("Save an API key first.", true); return; }
+  if (!$("aiConsent").checked){ aiSetStatus("Tick the consent box first.", true); return; }
+
+  const { comments, total, truncated, questionCols } = aiBuildComments();
+  if (!comments.length){ aiSetStatus("No open-text comments were found to summarise.", true); return; }
+
+  const runBtn = $("aiRun");
+  runBtn.disabled = true;
+  aiShowCancel(true);
+  $("aiResult").innerHTML = "";
+  aiSetStatus(truncated
+    ? `Summarising… (using the first ${fmtInt.format(AI_MAX_COMMENTS)} of ${fmtInt.format(total)} comments)`
+    : "Summarising…");
+
+  const userLine = questionCols.length
+    ? `Survey question${questionCols.length>1?"s":""}: ${questionCols.join(", ")}`
+    : "Survey comments";
+  const userPrompt = `${userLine}\nComments (JSON): ${JSON.stringify(comments)}`;
+
+  aiController = new AbortController();
+  let timedOut = false;
+  aiTimer = setTimeout(()=>{ timedOut = true; aiController.abort(); }, AI_TIMEOUT_MS);
+
+  try{
+    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: AI_MODEL,
+        messages: [
+          { role:"system", content: AI_SYSTEM_PROMPT },
+          { role:"user", content: userPrompt }
+        ],
+        temperature: 0.2,
+        max_tokens: 700,
+        response_format: { type: "json_object" }
+      }),
+      signal: aiController.signal
+    });
+
+    if (!resp.ok){ aiHandleHttpError(resp.status); return; }
+
+    const data = await resp.json();
+    const raw = data && data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : "";
+    let parsed = null;
+    try{ parsed = JSON.parse(raw); }catch{ parsed = null; }
+
+    if (!parsed || typeof parsed!=="object"){
+      aiSetStatus("The AI's reply couldn't be read as structured data. Showing the raw reply below.", true);
+      aiRenderRaw(raw);
+      return;
+    }
+
+    aiSetStatus(truncated ? `Done. Only the first ${fmtInt.format(AI_MAX_COMMENTS)} of ${fmtInt.format(total)} comments were used.` : "Done.");
+    aiRenderResult(parsed);
+
+  }catch(err){
+    if (err && err.name==="AbortError"){
+      aiSetStatus(timedOut ? "That took too long and was stopped." : "Summary cancelled.", true);
+    } else {
+      aiSetStatus("You appear to be offline, so the AI summary cannot run.", true);
+    }
+  }finally{
+    clearTimeout(aiTimer); aiTimer=null; aiController=null;
+    aiShowCancel(false);
+    aiUpdateRunEnabled();
+  }
+}
+
+function aiHandleHttpError(status){
+  let msg;
+  if (status===401) msg = "That key was not accepted. Check you pasted the whole key and try again.";
+  else if (status===429) msg = "OpenAI is busy or over its limit. Wait and try again.";
+  else if (status>=500) msg = "OpenAI had a problem. Try again shortly.";
+  else msg = "OpenAI could not process that request. Check your key and try again.";
+  aiSetStatus(msg, true);
+}
+
+function aiRenderResult(data){
+  const praised = Array.isArray(data.praised) ? data.praised.slice(0,3) : [];
+  const concerns = Array.isArray(data.concerns) ? data.concerns.slice(0,3) : [];
+  const steps = Array.isArray(data.next_steps) ? data.next_steps.slice(0,4) : [];
+
+  const themeBlock = (items) => items.length
+    ? `<ul class="ai-list">${items.map(it=>{
+        const theme = escHtml(clean(it && it.theme));
+        const example = clean(it && it.example);
+        return `<li>${theme?`<strong>${theme}</strong>`:""}${example?`<span class="ai-example">“${escHtml(example)}”</span>`:""}</li>`;
+      }).join("")}</ul>`
+    : `<p class="muted-note">Nothing came through clearly for this.</p>`;
+
+  const stepsBlock = steps.length
+    ? `<ul class="dlist">${steps.map(s=>`<li>${escHtml(clean(s))}</li>`).join("")}</ul>`
+    : `<p class="muted-note">No specific next steps were suggested.</p>`;
+
+  $("aiResult").innerHTML = `
+    <div class="ai-banner">AI summary - generated by OpenAI from your comments. Check it against the comments before acting.</div>
+    <div class="ai-blocks">
+      <div class="ai-block"><h4>What people praised</h4>${themeBlock(praised)}</div>
+      <div class="ai-block"><h4>What needs attention</h4>${themeBlock(concerns)}</div>
+      <div class="ai-block"><h4>Suggested next steps</h4>${stepsBlock}</div>
+    </div>`;
+}
+function aiRenderRaw(raw){
+  $("aiResult").innerHTML = `
+    <div class="ai-banner">AI summary - generated by OpenAI from your comments. Check it against the comments before acting.</div>
+    <p class="muted-note">Here is the raw reply OpenAI returned:</p>
+    <pre class="ai-raw"></pre>`;
+  $("aiResult").querySelector(".ai-raw").textContent = raw || "(empty reply)";
+}
+
+function aiWire(){
+  $("aiKeySave").addEventListener("click", aiSaveKey);
+  $("aiKeyForget").addEventListener("click", aiForgetKey);
+  $("aiConsent").addEventListener("change", aiUpdateRunEnabled);
+  $("aiRun").addEventListener("click", aiRunSummary);
+  $("aiCancel").addEventListener("click", ()=>{ if (aiController) aiController.abort(); });
+  aiSetKeyState();
+  aiUpdateRunEnabled();
+}
+
+/* ============================================================================
+   11. UI HELPERS / MOTION
    ============================================================================ */
 function clearData(){
   State.charts.forEach(c=>c.destroy()); State.charts=[];
@@ -966,7 +1247,7 @@ function toast(msg, err){ const t=$("toast"); t.textContent=msg; t.classList.tog
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("is-on"),3600); }
 
 /* ============================================================================
-   11. SAMPLE DATA
+   12. SAMPLE DATA
    ============================================================================ */
 function loadSample(){
   const years=["Year 7","Year 8","Year 9","Year 10","Year 11","Year 12"];
@@ -1017,7 +1298,7 @@ function loadSample(){
 }
 
 /* ============================================================================
-   12. WIRE-UP
+   13. WIRE-UP
    ============================================================================ */
 function init(){
   const dz=$("dropzone"), input=$("fileInput");
@@ -1029,6 +1310,8 @@ function init(){
   ["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev, e=>{ e.preventDefault(); dz.classList.add("is-drag"); }));
   ["dragleave","drop"].forEach(ev=>dz.addEventListener(ev, e=>{ e.preventDefault(); if (ev!=="dragleave"||e.target===dz) dz.classList.remove("is-drag"); }));
   dz.addEventListener("drop", e=>{ const f=e.dataTransfer.files[0]; if (f) handleFile(f); });
+
+  aiWire();
 
   if (typeof XLSX==="undefined") toast("Could not load the file-parsing library (offline?).", true);
 }

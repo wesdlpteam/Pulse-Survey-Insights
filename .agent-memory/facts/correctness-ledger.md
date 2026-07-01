@@ -51,6 +51,20 @@ completion-tally loops (renderKPIs + renderVerdict) now skip type "id". Verified
 Cross-model red-team (Gemini) was UNAVAILABLE (503 overload + network); rules were red-teamed against the
 edge fixtures instead (honest gap). Recipe: `node live-path.mjs <index> test/fixtures/pii-survey.csv`.
 
+## CL-7 (Wave 2, 2026-07-02) — opt-in OpenAI comment summary, privacy-verified
+Built by a Sonnet agent (model-routing: well-specified implementation); safety JUDGEMENT kept at the lead
+(Fable). Independently verified, NOT taken on the agent's word:
+- Data minimisation (the load-bearing claim) proven by an independent oracle (`ai-privacy.mjs`): the outgoing
+  OpenAI request carried ONLY scrubbed text-column comments; NO Id (1001..), Email (@example.com) or Timestamp
+  (2024-03-0) value appeared in the body. `aiBuildComments` reads `colsOfType("text")` only (id/PII already
+  excluded); `aiScrub` redacts inline emails + 7+ digit runs.
+- Key never hardcoded: read from localStorage only; field starts empty; never written to DOM/logs.
+- Opt-in gating: #aiRun disabled until key saved AND consent ticked. Plain error messages (401/429/5xx/offline/
+  timeout/bad-json). axe WCAG 2.2 AA: 0 violations with the panel.
+Recipe: `node ai-privacy.mjs <index> test/fixtures/pii-survey.csv` (asserts piiLeaks==[]). AI_MODEL="gpt-4o-mini"
+(verify against current OpenAI docs before relying). CORS/auth vs the real API is UNVERIFIED (no live key) -
+only request shape + error branches are proven.
+
 ## CL-3 FIXED + re-verified (2026-07-01) — "Responses in view" KPI showed 0
 CONFIRMED real (reproduced on BOTH fixtures: the response card showed 0 while the verdict knew the
 true count). Root cause: in `renderKPIs` (index.html ~L591-592) the responses card passed `0` as the
