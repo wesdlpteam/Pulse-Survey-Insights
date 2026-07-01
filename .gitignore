@@ -1,0 +1,12 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# deps / build
+node_modules/
+
+# impeccable local hook cache
+.impeccable/
+
+# Coding V2 kaizen state lives globally (~/.claude/coding-v2/state) — never committed per-repo

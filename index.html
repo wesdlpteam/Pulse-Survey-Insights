@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Insight · Universal Survey Analyser</title>
+<meta name="description" content="Upload any CSV or Excel survey export and get an instant, editorial-grade analytics report: KPIs, per-question breakdowns, recurring themes and a data-driven verdict." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<!-- Required libraries (client-side parsing + charts) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* ============================================================
+   DESIGN TOKENS  — deep-purple / gold / lilac editorial system.
+   All text colours verified for WCAG AA on their backgrounds;
+   gold is fill-only or uses darkened variants for text.
+   ============================================================ */
+:root{
+  --brand:      #4f2759;   /* deep purple */
+  --brand-600:  #663a72;
+  --brand-300:  #a684b0;
+  --purple-deep:#3c1c44;   /* darkest ramp end */
+
+  --gold:       #c59f40;   /* fills only */
+  --gold-700:   #9a7b28;   /* large/bold text (>=3:1) */
+  --gold-ink:   #806a1c;   /* small text (>=4.5:1) */
+
+  --lilac:      #e9deeb;
+  --lilac-bar:  #c4a7d1;   /* medium lilac for bars/ramp light end */
+  --lilac-50:   #f5f0f7;
+  --lilac-25:   #faf7fb;
+
+  --ink:        #2a1430;   /* body (11:1 on white) */
+  --ink-2:      #574360;   /* secondary (8.2:1) */
+  --muted:      #6f5a78;   /* labels/placeholder (5.8:1) */
+
+  --bg:         #ffffff;
+  --surface:    #ffffff;
+  --line:       #ece6ef;
+  --line-strong:#ddd2e2;
+
+  --pos:        #2e7d5b;  --pos-bg:#e7f3ec;
+  --neg:        #c0563f;  --neg-bg:#fbeae6;
+  --neu:        #8a7d93;  --neu-bg:#f0ecf2;
+
+  --verdict-bg:     #faf5e6;
+  --verdict-border: #ecdfb8;
+
+  --r-sm:8px; --r-md:14px; --r-lg:20px;
+  --maxw:1180px;
+  --ease:cubic-bezier(.22,1,.36,1);
+
+  --z-sticky:100; --z-pop:200; --z-toast:300;
+  --font:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{ margin:0; font-family:var(--font); color:var(--ink); background:var(--bg); line-height:1.55; font-size:16px; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+h1,h2,h3,h4,p{ margin:0; }
+h1,h2,h3{ text-wrap:balance; letter-spacing:-.02em; line-height:1.12; }
+button{ font-family:inherit; cursor:pointer; }
+:focus-visible{ outline:2.5px solid var(--brand); outline-offset:2px; border-radius:4px; }
+::selection{ background:var(--lilac); color:var(--brand); }
+
+.wrap{ width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:clamp(1.1rem,4vw,2.6rem); }
+
+/* ---- Eyebrow / kicker (the reference's section-label device) ---- */
+.eyebrow{ font-size:.75rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
+.eyebrow.gold{ color:var(--gold-ink); }
+.eyebrow.muted{ color:var(--muted); }
+.gold-rule{ width:52px; height:3px; background:var(--gold); border-radius:2px; margin-top:1.15rem; }
+
+/* ============================================================ TOP BAR ============================================================ */
+.topbar{ position:sticky; top:0; z-index:var(--z-sticky); background:rgba(255,255,255,.88); backdrop-filter:saturate(180%) blur(10px); border-bottom:1px solid var(--line); }
+.topbar__inner{ display:flex; align-items:center; justify-content:space-between; gap:1rem; height:58px; }
+.brand{ display:flex; align-items:center; gap:.6rem; font-weight:700; color:var(--ink); }
+.brand__name{ font-size:1rem; }
+.brand__name b{ color:var(--brand); }
+.topbar__meta{ display:flex; align-items:center; gap:.9rem; font-size:.82rem; color:var(--muted); }
+.filechip{ display:none; align-items:center; gap:.55rem; background:var(--lilac-50); border:1px solid var(--line); border-radius:999px; padding:.32rem .4rem .32rem .8rem; font-size:.82rem; color:var(--ink-2); }
+.filechip.is-on{ display:inline-flex; }
+.filechip b{ color:var(--ink); font-weight:600; max-width:32ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.icon-btn{ display:grid; place-items:center; width:26px; height:26px; border:none; background:transparent; color:var(--muted); border-radius:50%; }
+.icon-btn:hover{ background:#fff; color:var(--brand); }
+.icon-btn svg{ width:15px; height:15px; }
+
+/* ============================================================ BUTTONS ============================================================ */
+.btn{ display:inline-flex; align-items:center; gap:.5rem; border:1px solid transparent; border-radius:var(--r-sm); padding:.62rem 1.1rem; font-weight:600; font-size:.92rem; line-height:1; transition:background .18s var(--ease), color .18s, border-color .18s, transform .1s; }
+.btn:active{ transform:translateY(1px); }
+.btn--primary{ background:var(--brand); color:#fff; } .btn--primary:hover{ background:var(--brand-600); }
+.btn--ghost{ background:#fff; color:var(--brand); border-color:var(--line-strong); } .btn--ghost:hover{ border-color:var(--brand); background:var(--lilac-25); }
+.btn--sm{ padding:.48rem .8rem; font-size:.84rem; }
+.btn svg{ width:16px; height:16px; }
+
+/* ============================================================ UPLOAD (empty state) ============================================================ */
+.upload{ padding-block:clamp(2.4rem,7vw,4.5rem); }
+.upload__inner{ max-width:640px; }
+.upload h1{ font-size:clamp(2rem,4.6vw,3.1rem); font-weight:800; color:var(--brand); margin-top:1rem; }
+.upload p.lede{ margin-top:1rem; font-size:clamp(1rem,1.4vw,1.15rem); color:var(--ink-2); max-width:56ch; }
+.dropzone{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:.85rem; margin-top:2rem; padding:clamp(1.8rem,4vw,2.8rem);
+  background:radial-gradient(120% 140% at 50% 0%, var(--lilac-50) 0%, #fff 62%); border:2px dashed var(--line-strong); border-radius:var(--r-lg);
+  transition:border-color .25s var(--ease), background .25s var(--ease), transform .25s var(--ease); }
+.dropzone.is-drag{ border-color:var(--brand); background:radial-gradient(120% 140% at 50% 0%, var(--lilac) 0%, #fff 66%); transform:translateY(-2px); }
+.dropzone__icon{ display:grid; place-items:center; width:56px; height:56px; border-radius:16px; background:var(--brand); color:#fff; }
+.dropzone__icon svg{ width:27px; height:27px; }
+.dropzone h3{ font-size:1.12rem; }
+.dropzone p{ color:var(--muted); font-size:.9rem; margin-top:.15rem; }
+.dropzone__actions{ display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; margin-top:.4rem; }
+
+/* ============================================================ REPORT ============================================================ */
+#report[hidden]{ display:none; }
+.report-head{ padding-block:clamp(1.8rem,5vw,3rem) 0; }
+.report-head h1{ font-size:clamp(1.9rem,4.2vw,3rem); font-weight:800; color:var(--brand); margin-top:.85rem; }
+.report-head p.desc{ margin-top:.9rem; font-size:clamp(1rem,1.3vw,1.12rem); color:var(--ink-2); max-width:70ch; }
+
+/* ---- Filters ---- */
+.filters{ margin-top:clamp(1.8rem,4vw,2.4rem); padding-top:1.6rem; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:.9rem; }
+.filter-row{ display:flex; align-items:center; gap:.7rem .9rem; flex-wrap:wrap; }
+.filter-row__label{ flex:0 0 auto; min-width:100px; font-size:.74rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.pill{ border:1px solid var(--line-strong); background:#fff; color:var(--brand); border-radius:999px; padding:.4rem .95rem; font-size:.86rem; font-weight:600; line-height:1; transition:background .16s var(--ease), border-color .16s, color .16s, transform .1s; }
+.pill:hover{ background:var(--lilac-25); border-color:var(--brand-300); }
+.pill:active{ transform:translateY(1px); }
+.pill.active{ background:var(--gold); border-color:var(--gold); color:var(--ink); }
+.pill.active:hover{ background:var(--gold-700); border-color:var(--gold-700); color:#fff; }
+.showing{ margin-top:1.15rem; font-size:.92rem; color:var(--muted); }
+.showing b{ color:var(--ink); font-variant-numeric:tabular-nums; }
+.showing .reset{ margin-left:.9rem; border:none; background:none; color:var(--brand); font-weight:600; font-size:.86rem; text-decoration:underline; text-underline-offset:3px; }
+.showing .reset:hover{ color:var(--gold-ink); }
+
+/* ---- Sections ---- */
+main{ padding-bottom:4rem; }
+.section{ margin-top:clamp(2.2rem,5vw,3.2rem); }
+.section__head{ display:flex; align-items:center; justify-content:space-between; gap:1rem; padding-bottom:1.1rem; margin-bottom:1.4rem; border-bottom:1px solid var(--line); }
+.section__badge{ font-size:.78rem; font-weight:600; color:var(--brand); background:var(--lilac-50); border:1px solid var(--line); border-radius:999px; padding:.28rem .8rem; }
+
+/* ---- Cards (border-only, no shadow — matches reference) ---- */
+.card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r-md); }
+.card__pad{ padding:clamp(1.15rem,2.2vw,1.55rem); }
+
+/* ---- KPI ---- */
+.kpis{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1rem; }
+.kpi{ padding:1.5rem 1.4rem; }
+.kpi__val{ font-size:2.55rem; font-weight:800; letter-spacing:-.03em; line-height:1; font-variant-numeric:tabular-nums; color:var(--brand); }
+.kpi__val.gold{ color:var(--gold-700); }
+.kpi__val small{ font-size:1.15rem; font-weight:700; color:var(--muted); letter-spacing:0; }
+.kpi__label{ margin-top:.7rem; font-size:.9rem; color:var(--ink-2); line-height:1.4; max-width:26ch; }
+
+/* ---- Charts grid ---- */
+.chart-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:1rem; }
+.chart-card h3{ font-size:1rem; font-weight:700; color:var(--ink); }
+.chart-card .csub{ font-size:.82rem; color:var(--gold-ink); font-weight:600; margin-top:.15rem; }
+.chart-wrap{ position:relative; margin-top:1.1rem; min-height:180px; }
+
+/* ---- Open feedback ---- */
+.feedback-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(400px,1fr)); gap:1rem; }
+.fb-card h3{ font-size:1rem; font-weight:700; color:var(--ink); }
+.fb-card .csub{ font-size:.82rem; color:var(--gold-ink); font-weight:600; margin-top:.15rem; }
+.themes{ display:flex; flex-wrap:wrap; gap:.45rem; margin-top:1rem; }
+.theme{ display:inline-flex; align-items:center; gap:.4rem; background:var(--lilac-50); color:var(--brand); border:1px solid var(--line); border-radius:999px; padding:.3rem .7rem; font-size:.84rem; font-weight:600; line-height:1.2; transition:transform .15s var(--ease), background .15s; }
+.theme:hover{ transform:translateY(-1px); background:var(--lilac); }
+.theme .cnt{ font-size:.76em; color:var(--muted); font-variant-numeric:tabular-nums; }
+
+.mini-sent{ margin-top:1.1rem; }
+.mini-sent__bar{ display:flex; height:8px; border-radius:999px; overflow:hidden; background:var(--line); }
+.mini-sent__bar span{ display:block; height:100%; transition:width .6s var(--ease); }
+.mini-sent__legend{ display:flex; flex-wrap:wrap; gap:.4rem 1.1rem; margin-top:.6rem; font-size:.78rem; color:var(--muted); }
+.mini-sent__legend b{ color:var(--ink-2); font-variant-numeric:tabular-nums; }
+
+.quotes{ display:flex; flex-direction:column; gap:.7rem; margin-top:1.2rem; }
+.quote{ background:var(--lilac-25); border:1px solid var(--line); border-left:3px solid var(--gold); border-radius:0 var(--r-sm) var(--r-sm) 0; padding:.8rem .95rem; }
+.quote p{ font-size:.9rem; color:var(--ink-2); }
+.quote .qmeta{ display:flex; align-items:center; gap:.55rem; margin-top:.5rem; font-size:.74rem; color:var(--muted); }
+.tag{ display:inline-flex; align-items:center; gap:.3rem; font-weight:700; border-radius:999px; padding:.12rem .5rem; font-size:.68rem; }
+.tag .sw{ width:6px; height:6px; border-radius:50%; }
+.tag.pos{ background:var(--pos-bg); color:var(--pos); }
+.tag.neg{ background:var(--neg-bg); color:var(--neg); }
+.tag.neu{ background:var(--neu-bg); color:var(--neu); }
+
+/* ---- Verdict & actions ---- */
+.verdict{ background:var(--verdict-bg); border:1px solid var(--verdict-border); border-radius:var(--r-md); padding:clamp(1.3rem,2.6vw,1.8rem); }
+.verdict h3{ font-size:1.08rem; font-weight:700; color:var(--brand); }
+.verdict p{ margin-top:.7rem; font-size:1rem; color:var(--ink-2); line-height:1.62; max-width:92ch; }
+.verdict .hl-gold{ color:var(--gold-ink); font-weight:700; }
+.verdict .hl-purple{ color:var(--brand); font-weight:700; }
+.action-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem; }
+.action-card h4{ font-size:.95rem; font-weight:700; color:var(--ink); margin-bottom:.9rem; }
+.dlist{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.8rem; }
+.dlist li{ position:relative; padding-left:1.3rem; font-size:.92rem; color:var(--ink-2); line-height:1.5; }
+.dlist li::before{ content:""; position:absolute; left:0; top:.5em; width:7px; height:7px; border-radius:50%; background:var(--gold); }
+.dlist li strong{ color:var(--ink); font-weight:700; }
+
+/* ---- Empty / misc ---- */
+.muted-note{ color:var(--muted); font-size:.9rem; font-style:italic; }
+.toast{ position:fixed; left:50%; bottom:1.5rem; transform:translateX(-50%) translateY(150%); z-index:var(--z-toast); background:var(--ink); color:#fff; padding:.72rem 1.15rem; border-radius:var(--r-sm); font-size:.88rem; box-shadow:0 8px 28px rgba(42,20,48,.18); transition:transform .4s var(--ease); max-width:90vw; }
+.toast.is-on{ transform:translateX(-50%) translateY(0); }
+.toast.err{ background:var(--neg); }
+footer{ border-top:1px solid var(--line); color:var(--muted); font-size:.83rem; padding-block:1.6rem; text-align:center; }
+footer b{ color:var(--brand); }
+
+/* ---- Motion (base visible; .reveal only enhances) ---- */
+@keyframes rise{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:none; } }
+.reveal{ animation:rise .55s var(--ease) both; }
+@media (prefers-reduced-motion: reduce){ *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; } }
+
+/* ---- Responsive ---- */
+@media (max-width:720px){
+  .action-grid{ grid-template-columns:1fr; }
+  .filter-row__label{ min-width:100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ======================= TOP BAR ======================= -->
+<header class="topbar">
+  <div class="wrap topbar__inner">
+    <div class="brand">
+      <span aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="9" fill="#4f2759"/>
+          <rect x="8"  y="15" width="4" height="9"  rx="2" fill="#e9deeb"/>
+          <rect x="14" y="10" width="4" height="14" rx="2" fill="#c59f40"/>
+          <rect x="20" y="7"  width="4" height="17" rx="2" fill="#ffffff"/>
+        </svg>
+      </span>
+      <span class="brand__name"><b>Insight</b> · Survey Analyser</span>
+    </div>
+    <div class="topbar__meta">
+      <span class="filechip" id="fileChip" role="status">
+        <b id="fileName">file.csv</b>
+        <button class="icon-btn" id="changeFile" title="Load a different file" aria-label="Load a different file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
+      </span>
+      <span class="hide-sm">Processed locally in your browser</span>
+    </div>
+  </div>
+</header>
+
+<!-- ======================= UPLOAD (empty state) ======================= -->
+<section class="upload wrap" id="uploadView">
+  <div class="upload__inner">
+    <span class="eyebrow gold">Universal Survey Analyser</span>
+    <h1>Turn any survey export into an editorial-grade report.</h1>
+    <p class="lede">Drop in a CSV or Excel file. Insight detects your columns, builds a per-question breakdown, surfaces recurring themes from open-text answers, and drafts a data-driven verdict. Everything runs in your browser; nothing is uploaded.</p>
+
+    <div class="dropzone" id="dropzone">
+      <div class="dropzone__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <div>
+        <h3>Drop your survey file here</h3>
+        <p>Supports .csv, .xlsx and .xls. Parsed locally; nothing leaves this page.</p>
+      </div>
+      <div class="dropzone__actions">
+        <button class="btn btn--primary" id="browseBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+          Browse files
+        </button>
+        <button class="btn btn--ghost" id="sampleBtn" type="button">Load sample data</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<input type="file" id="fileInput" accept=".csv,.xlsx,.xls" hidden />
+
+<!-- ======================= REPORT ======================= -->
+<div id="report" hidden>
+  <!-- Head: eyebrow + title + description + filters -->
+  <section class="report-head wrap">
+    <span class="eyebrow gold" id="reportEyebrow">Survey Analysis</span>
+    <h1 id="reportTitle">Survey results</h1>
+    <p class="desc" id="reportDesc"></p>
+    <div class="gold-rule"></div>
+
+    <div class="filters" id="filterBar"></div>
+    <div class="showing" id="showing"></div>
+  </section>
+
+  <main class="wrap">
+    <!-- KPIs -->
+    <section class="section" id="secKpi">
+      <div class="section__head"><span class="eyebrow muted">At a glance</span></div>
+      <div class="kpis" id="kpiRow"></div>
+    </section>
+
+    <!-- Per-question breakdown -->
+    <section class="section" id="secCharts">
+      <div class="section__head">
+        <span class="eyebrow muted">Response breakdown</span>
+        <span class="section__badge" id="chartsBadge"></span>
+      </div>
+      <div class="chart-grid" id="chartGrid"></div>
+    </section>
+
+    <!-- Open feedback -->
+    <section class="section" id="secText">
+      <div class="section__head">
+        <span class="eyebrow muted">Open feedback · recurring themes</span>
+        <span class="section__badge" id="textBadge"></span>
+      </div>
+      <div class="feedback-grid" id="feedbackGrid"></div>
+    </section>
+
+    <!-- Verdict & actions -->
+    <section class="section" id="secVerdict">
+      <div class="section__head"><span class="eyebrow muted">Verdict &amp; recommended actions</span></div>
+      <div class="verdict" id="verdictBox"></div>
+      <div class="action-grid">
+        <div class="card action-card"><div class="card__pad">
+          <h4>What the data supports</h4>
+          <ul class="dlist" id="dataList"></ul>
+        </div></div>
+        <div class="card action-card"><div class="card__pad">
+          <h4>Recommended actions</h4>
+          <ul class="dlist" id="actionList"></ul>
+        </div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer class="wrap">Built with <b>Insight</b> · SheetJS + Chart.js · all processing happens locally in your browser.</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ============================================================================
+   INSIGHT — Universal Survey Analyser (single file, vanilla JS)
+   ============================================================================ */
+
+const State = {
+  headers: [], rows: [], meta: {},
+  filterCols: [],       // columns rendered as pill-filter rows
+  filters: {},          // colName -> Set of selected values (empty = all)
+  charts: [],           // Chart.js instances (destroyed on re-render)
+  title: "Survey results"
+};
+
+const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = (id) => document.getElementById(id);
+const fmtInt = new Intl.NumberFormat("en-AU");
+
+/* ---------- helpers ---------- */
+const isBlank = (v) => v === null || v === undefined || String(v).trim() === "";
+const clean   = (v) => (v === null || v === undefined) ? "" : String(v).trim();
+function toNumber(v){ if (isBlank(v)) return NaN; if (typeof v==="number") return v;
+  const n = parseFloat(String(v).replace(/[, %$]/g,"")); return Number.isFinite(n) ? n : NaN; }
+const mean = (a) => a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0;
+const round1 = (n) => Math.round(n*10)/10;
+const splitMulti = (v) => clean(v).split(/\s*[;,/|]\s*|\s{2,}/).map(s=>s.trim()).filter(Boolean);
+function escHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c])); }
+
+/* ============================================================================
+   1. FILE HANDLING
+   ============================================================================ */
+function handleFile(file){
+  if (!file) return;
+  if (typeof XLSX === "undefined"){ toast("Parser library failed to load. Check your connection.", true); return; }
+  const reader = new FileReader();
+  reader.onerror = () => toast("Could not read that file.", true);
+  reader.onload = (e) => {
+    try{
+      const wb = XLSX.read(new Uint8Array(e.target.result), { type:"array", cellDates:true });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const matrix = XLSX.utils.sheet_to_json(ws, { header:1, defval:"", blankrows:false, raw:false });
+      ingest(matrix, file.name);
+    }catch(err){ console.error(err); toast("Sorry, that file couldn't be parsed. Is it a valid CSV/Excel?", true); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function ingest(matrix, name){
+  if (!matrix || matrix.length < 2){ toast("That file doesn't contain any data rows.", true); return; }
+  const seen = {};
+  const headers = matrix[0].map((h,i)=>{ let k = clean(h) || `Column ${i+1}`;
+    if (seen[k]!=null){ seen[k]++; k = `${k} (${seen[k]})`; } else seen[k]=0; return k; });
+
+  const rows = [];
+  for (let r=1;r<matrix.length;r++){
+    const raw = matrix[r]; if (!raw || raw.every(isBlank)) continue;
+    const o = {}; headers.forEach((h,i)=>{ o[h] = raw[i]===undefined?"":raw[i]; }); rows.push(o);
+  }
+  if (!rows.length){ toast("No populated rows found.", true); return; }
+
+  State.headers = headers; State.rows = rows;
+  State.title = deriveTitle(name);
+  analyse();
+  chooseFilterCols();
+  boot(name);
+}
+
+function deriveTitle(name){
+  return name.replace(/\.[^.]+$/,"").replace(/[_-]+/g," ").replace(/\s+/g," ").trim()
+             .replace(/\b\w/g, c=>c.toUpperCase()) || "Survey results";
+}
+
+/* ============================================================================
+   2. COLUMN ANALYSIS
+   types: numeric | categorical | text | date | multi
+   ============================================================================ */
+const DATE_RE = /^\d{4}[-/]\d{1,2}[-/]\d{1,2}|^\d{1,2}[-/]\d{1,2}[-/]\d{2,4}/;
+
+function analyse(){
+  State.meta = {};
+  for (const h of State.headers){
+    const values = State.rows.map(r=>r[h]).filter(v=>!isBlank(v));
+    const n = values.length;
+    const distinct = [...new Set(values.map(clean))];
+
+    let numCount=0,numMax=-Infinity,numMin=Infinity,dateCount=0,wordTotal=0,lenTotal=0,delimCells=0,tokTotal=0;
+    const tokenSet = new Set();
+    for (const v of values){
+      const s = clean(v);
+      const num = toNumber(v); if (!Number.isNaN(num)){ numCount++; numMax=Math.max(numMax,num); numMin=Math.min(numMin,num); }
+      if (DATE_RE.test(s) || v instanceof Date) dateCount++;
+      wordTotal += s.split(/\s+/).filter(Boolean).length; lenTotal += s.length;
+      if (/[;,/|]/.test(s)) delimCells++;
+      const toks = splitMulti(s); tokTotal += toks.length; toks.forEach(t=>tokenSet.add(t.toLowerCase()));
+    }
+    const ratio = (x)=> n ? x/n : 0;
+    const numericRatio=ratio(numCount), dateRatio=ratio(dateCount), distinctRatio=ratio(distinct.length),
+          avgWords=ratio(wordTotal), avgLen=ratio(lenTotal), delimRatio=ratio(delimCells), tokPer=ratio(tokTotal);
+
+    let type;
+    if (numericRatio>=0.8 && distinct.length>1) type="numeric";
+    else if (delimRatio>=0.4 && tokenSet.size>=2 && tokenSet.size<=25 && tokPer>=1.4 && avgWords<12) type="multi";
+    else if (dateRatio>=0.7) type="date";
+    else if (avgWords>=4 || (distinctRatio>0.75 && avgLen>22 && n>4)) type="text";
+    else type="categorical";
+
+    // multi option tokens (original casing, tallied)
+    let tokens = null;
+    if (type==="multi"){
+      const map = {}; for (const v of values) splitMulti(v).forEach(t=>{ map[t]=(map[t]||0)+1; });
+      tokens = Object.keys(map);
+    }
+
+    State.meta[h] = { type, nonEmpty:n, distinct, distinctCount:distinct.length,
+      numMax:Number.isFinite(numMax)?numMax:null, numMin:Number.isFinite(numMin)?numMin:null, tokens };
+  }
+}
+
+const colsOfType = (t) => State.headers.filter(h => State.meta[h].type===t);
+const lowCard = (h,min=2,max=15) => { const m=State.meta[h]; return m.distinctCount>=min && m.distinctCount<=max; };
+
+/* columns worth charting (one horizontal bar chart each) */
+function chartableCols(){
+  return State.headers.filter(h=>{
+    const t = State.meta[h].type;
+    if (t==="multi") return true;
+    if ((t==="categorical"||t==="numeric"||t==="date")) return lowCard(h);
+    return false;
+  }).slice(0,12);
+}
+
+/* pick up to 3 pill-filter dimensions */
+function chooseFilterCols(){
+  State.filterCols = State.headers.filter(h=>{
+    const t = State.meta[h].type;
+    return (t==="categorical" || t==="multi") && lowCard(h,2,12);
+  }).slice(0,3);
+  State.filters = {};
+  State.filterCols.forEach(c => State.filters[c] = new Set());
+}
+
+/* ============================================================================
+   3. FILTERING
+   ============================================================================ */
+function filteredRows(){
+  const active = State.filterCols.filter(c => State.filters[c] && State.filters[c].size);
+  if (!active.length) return State.rows;
+  return State.rows.filter(r=>{
+    for (const col of active){
+      const sel = State.filters[col];
+      if (State.meta[col].type==="multi"){
+        if (!splitMulti(r[col]).some(t=>sel.has(t))) return false;
+      } else if (!sel.has(clean(r[col]))) return false;
+    }
+    return true;
+  });
+}
+
+/* ============================================================================
+   4. BOOT + CONTROLS
+   ============================================================================ */
+function boot(name){
+  $("uploadView").hidden = true;
+  $("report").hidden = false;
+  $("fileChip").classList.add("is-on");
+  $("fileName").textContent = name;
+  $("reportTitle").textContent = State.title;
+  $("reportDesc").textContent =
+    `${fmtInt.format(State.rows.length)} responses across ${State.headers.length} questions. Filter by any dimension below; every panel recalculates live.`;
+  buildFilterUI();
+  render(true);
+  toast(`Loaded ${fmtInt.format(State.rows.length)} responses across ${State.headers.length} columns.`);
+}
+
+function buildFilterUI(){
+  const bar = $("filterBar");
+  bar.innerHTML = "";
+  if (!State.filterCols.length){
+    bar.innerHTML = `<span class="muted-note">No categorical columns detected to filter by.</span>`;
+    return;
+  }
+  State.filterCols.forEach(col=>{
+    const values = (State.meta[col].type==="multi" ? State.meta[col].tokens : State.meta[col].distinct)
+                    .slice().sort(smartSort);
+    const row = document.createElement("div"); row.className="filter-row";
+    row.innerHTML = `<span class="filter-row__label">${escHtml(col)}</span>`;
+
+    const allBtn = mkPill("All", true);
+    allBtn.addEventListener("click", ()=>{ State.filters[col].clear(); syncRow(row,col); render(); });
+    row.appendChild(allBtn);
+
+    values.forEach(val=>{
+      const p = mkPill(val, false);
+      p.dataset.val = val;
+      p.addEventListener("click", ()=>{
+        const s = State.filters[col];
+        if (s.has(val)) s.delete(val); else s.add(val);
+        syncRow(row,col); render();
+      });
+      row.appendChild(p);
+    });
+    bar.appendChild(row);
+  });
+}
+
+function mkPill(label, active){
+  const b = document.createElement("button");
+  b.type="button"; b.className="pill"+(active?" active":""); b.textContent=label;
+  return b;
+}
+function syncRow(row, col){
+  const s = State.filters[col];
+  const pills = row.querySelectorAll(".pill");
+  pills.forEach(p=>{
+    if (p.dataset.val===undefined){ p.classList.toggle("active", s.size===0); }   // the "All" pill
+    else p.classList.toggle("active", s.has(p.dataset.val));
+  });
+}
+function resetFilters(){
+  State.filterCols.forEach(c=>State.filters[c].clear());
+  buildFilterUI(); render(); toast("Filters reset.");
+}
+
+function smartSort(a,b){
+  const na=toNumber(a), nb=toNumber(b);
+  if (!Number.isNaN(na)&&!Number.isNaN(nb)) return na-nb;
+  return String(a).localeCompare(String(b), undefined, {numeric:true});
+}
+
+/* ============================================================================
+   5. RENDER ORCHESTRATOR
+   ============================================================================ */
+function render(first){
+  const rows = filteredRows();
+  renderShowing(rows);
+  renderKPIs(rows);
+  renderCharts(rows);
+  renderFeedback(rows);
+  renderVerdict(rows);
+  if (first) reveal();
+}
+
+function renderShowing(rows){
+  const anyFilter = State.filterCols.some(c=>State.filters[c].size);
+  $("showing").innerHTML =
+    `Showing <b>${fmtInt.format(rows.length)}</b> of ${fmtInt.format(State.rows.length)} responses` +
+    (anyFilter ? `<button class="reset" id="resetInline">Reset filters</button>` : ``);
+  const rb = $("resetInline"); if (rb) rb.addEventListener("click", resetFilters);
+}
+
+/* ============================================================================
+   6. KPI CARDS  (adaptive, icon-free, reference style)
+   ============================================================================ */
+function renderKPIs(rows){
+  const total = State.rows.length, shown = rows.length;
+  const cards = [];
+
+  cards.push(kpiCard(fmtInt.format(shown), "",
+    shown===total ? "Responses in view" : `Responses in view (${Math.round(shown/(total||1)*100)}% of ${fmtInt.format(total)})`, false, 0));
+
+  // completion
+  const cols = State.headers.length; let filled=0;
+  for (const r of rows) for (const h of State.headers) if (!isBlank(r[h])) filled++;
+  const completion = (rows.length&&cols)? filled/(rows.length*cols)*100 : 0;
+
+  const numCols = colsOfType("numeric");
+  if (numCols.length){
+    const c = numCols[0];
+    const vals = rows.map(r=>toNumber(r[c])).filter(n=>!Number.isNaN(n));
+    const scale = niceScale(State.meta[c].numMax);
+    cards.push(kpiCard(String(round1(mean(vals))||0), ` / ${scale}`, `Average “${c}”`, false, round1(mean(vals))||0));
+  } else {
+    cards.push(kpiCard(Math.round(completion)+"", "%", "Average completion rate", false, Math.round(completion)));
+  }
+
+  cards.push(kpiCard(Math.round(completion)+"", "%", "Average questions answered", false, Math.round(completion)));
+
+  // sentiment (gold accent)
+  const tcol = colsOfType("text")[0];
+  if (tcol){
+    const s = sentiment(rows.map(r=>r[tcol]));
+    const t = s.pos+s.neu+s.neg; const pct = t? Math.round(s.pos/t*100):0;
+    cards.push(kpiCard(pct+"", "%", "Positive open-text sentiment", true, pct));
+  } else {
+    const seg = State.filterCols[0];
+    const segN = seg ? State.meta[seg].distinctCount : 0;
+    cards.push(kpiCard(fmtInt.format(segN), "", `Distinct ${seg||"segments"}`, true, segN));
+  }
+
+  // KPI #3 duplicates completion if we already used it as #2; swap for a nicer 3rd metric
+  if (!numCols.length){
+    // replace card[2] (completion again) with "top response" share
+    const cc = chartableCols()[0];
+    if (cc){
+      const tally = tallyCol(rows, cc);
+      const top = Object.entries(tally).sort((a,b)=>b[1]-a[1])[0];
+      if (top){ const pct = Math.round(top[1]/(rows.length||1)*100);
+        cards[2] = kpiCard(pct+"", "%", `Most common “${cc}”: ${top[0]}`, false, pct); }
+    }
+  }
+
+  $("kpiRow").innerHTML = cards.join("");
+  $("kpiRow").querySelectorAll("[data-count]").forEach(el=>{
+    countUp(el, +el.dataset.count, { suffix: el.dataset.suffix||"", decimals: el.dataset.dec==="1"?1:0 });
+  });
+}
+
+function kpiCard(value, suffix, label, gold, count){
+  const dec = String(value).includes(".") ? 1 : 0;
+  return `<div class="card kpi">
+    <div class="kpi__val ${gold?"gold":""}"><span data-count="${count}" data-suffix="" data-dec="${dec}">0</span>${suffix?`<small>${escHtml(suffix)}</small>`:``}</div>
+    <div class="kpi__label">${escHtml(label)}</div>
+  </div>`;
+}
+function niceScale(max){ if (max==null) return "5"; if (max<=5) return "5"; if (max<=7) return "7"; if (max<=10) return "10"; if (max<=100) return "100"; return String(Math.ceil(max)); }
+
+/* ============================================================================
+   7. CHARTS — one horizontal bar per question
+   ============================================================================ */
+const ORDINAL = [
+  ["never","rarely","sometimes","often","frequently","always"],
+  ["strongly disagree","disagree","neutral","agree","strongly agree"],
+  ["poor","fair","average","good","very good","excellent"],
+  ["very dissatisfied","dissatisfied","neutral","satisfied","very satisfied"]
+];
+function categoryOrder(labels){
+  if (labels.every(l=>!Number.isNaN(toNumber(l))))
+    return { ordered:true, labels:[...labels].sort((a,b)=>toNumber(a)-toNumber(b)) };
+  const lc = labels.map(l=>String(l).toLowerCase().trim());
+  for (const scale of ORDINAL){
+    const known = lc.filter(l=>!["na","n/a","none","(blank)",""].includes(l));
+    if (known.length && known.every(l=>scale.includes(l))){
+      const idx = l=>{ const i=scale.indexOf(String(l).toLowerCase().trim()); return i<0?-1:i; };
+      return { ordered:true, labels:[...labels].sort((a,b)=>idx(a)-idx(b)) };
+    }
+  }
+  return { ordered:false, labels:[...labels].sort(smartSort) };
+}
+
+const CYCLE = ["#4f2759","#c59f40","#c4a7d1","#663a72","#9a7b28","#a684b0","#8a5a97","#d8b866"];
+function lerp(a,b,t){ return Math.round(a+(b-a)*t); }
+function rampColor(t){ // lilac -> deep purple
+  const A=[196,167,209], B=[60,28,68];
+  return `rgb(${lerp(A[0],B[0],t)},${lerp(A[1],B[1],t)},${lerp(A[2],B[2],t)})`;
+}
+function barColors(n, ordered){
+  if (ordered) return n===1 ? ["#4f2759"] : Array.from({length:n},(_,i)=>rampColor(i/(n-1)));
+  return Array.from({length:n},(_,i)=>CYCLE[i%CYCLE.length]);
+}
+
+function tallyCol(rows, col){
+  const out = {}; const multi = State.meta[col].type==="multi";
+  for (const r of rows){
+    if (multi){ splitMulti(r[col]).forEach(t=>out[t]=(out[t]||0)+1); }
+    else { let v=clean(r[col]); if (v==="") v="(blank)"; out[v]=(out[v]||0)+1; }
+  }
+  return out;
+}
+
+function renderCharts(rows){
+  State.charts.forEach(c=>c.destroy()); State.charts = [];
+  const grid = $("chartGrid"); grid.innerHTML = "";
+  if (typeof Chart==="undefined"){ grid.innerHTML = `<p class="muted-note">Chart library failed to load.</p>`; return; }
+  configureChartDefaults();
+
+  const cols = chartableCols();
+  $("chartsBadge").textContent = `${cols.length} question${cols.length!==1?"s":""}`;
+  if (!cols.length){ grid.innerHTML = `<p class="muted-note">No categorical or rating questions detected to chart.</p>`; return; }
+
+  cols.forEach(col=>{
+    const tally = tallyCol(rows, col);
+    const ord = categoryOrder(Object.keys(tally));
+    const labels = ord.labels;
+    const data = labels.map(l=>tally[l]);
+    const colors = barColors(labels.length, ord.ordered);
+    const multi = State.meta[col].type==="multi";
+
+    const card = document.createElement("div");
+    card.className = "card chart-card";
+    const h = Math.max(170, labels.length*38 + 44);
+    card.innerHTML = `<div class="card__pad">
+      <h3>${escHtml(col)}</h3>
+      <div class="csub">${multi ? "Selections across respondents (multi-select)" : "Distribution of responses"}</div>
+      <div class="chart-wrap" style="height:${h}px"><canvas></canvas></div>
+    </div>`;
+    grid.appendChild(card);
+
+    const ctx = card.querySelector("canvas");
+    State.charts.push(new Chart(ctx, {
+      type:"bar",
+      data:{ labels, datasets:[{ data, backgroundColor:colors, borderRadius:5, maxBarThickness:30 }] },
+      options:{
+        indexAxis:"y", responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>{
+          const tot = c.dataset.data.reduce((a,b)=>a+b,0)||1;
+          return ` ${fmtInt.format(c.parsed.x)} (${Math.round(c.parsed.x/tot*100)}%)`;
+        }}}},
+        scales:{ x:{ beginAtZero:true, grid:{color:"#f0ecf2"}, ticks:{precision:0} },
+                 y:{ grid:{display:false}, ticks:{ crossAlign:"far", autoSkip:false } } }
+      }
+    }));
+  });
+}
+
+let defaultsSet=false;
+function configureChartDefaults(){
+  if (defaultsSet) return;
+  Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+  Chart.defaults.font.size = 12.5;
+  Chart.defaults.color = "#574360";
+  Chart.defaults.animation.duration = REDUCED?0:650;
+  Chart.defaults.animation.easing = "easeOutQuart";
+  Chart.defaults.plugins.tooltip.backgroundColor = "#2a1430";
+  Chart.defaults.plugins.tooltip.padding = 10;
+  Chart.defaults.plugins.tooltip.cornerRadius = 8;
+  defaultsSet = true;
+}
+
+/* ============================================================================
+   8. OPEN FEEDBACK  (keywords + sentiment + representative comments)
+   ============================================================================ */
+const STOP = new Set(("a an and the of to in for on at is are was were be been being it its this that these those i you he she we they them our your their my me us him her his do does did have has had will would could should can may might must not no yes so if then than as but or nor because while with without within about into over under again further just very too also more most some any all both each few other such only own same s t don ll re ve m d o there here what which who whom when where why how get got make made really quite lot much many thing things also even still im ive dont didnt cant wont thats theyre").split(/\s+/));
+const POS = new Set("good great excellent amazing awesome love loved loving enjoy enjoyed enjoyable helpful supportive support supported wonderful fantastic brilliant outstanding positive happy friendly caring kind welcoming inspiring passionate engaging engaged clean safe comfortable appreciate appreciated best better strong effective fun exciting excited nice pleased satisfied thank thanks grateful improved smooth easy clear encouraging respectful reliable valuable".split(/\s+/));
+const NEG = new Set("bad poor worse worst terrible awful horrible hate dislike difficult hard stress stressful stressed overwhelmed overwhelming lack lacking slow confusing confused disappointing disappointed unhappy frustrating frustrated frustration rude unfair expensive crowded dirty noisy boring unclear ignored unsupported concern concerned concerns issue issues problem problems broken fail failed failing struggle struggling struggled complaint complaints negative annoying uncomfortable unsafe inadequate insufficient limited outdated clumsy".split(/\s+/));
+
+function tokenize(str){
+  return clean(str).toLowerCase().replace(/[^a-z0-9\s'-]/g," ").split(/\s+/)
+    .map(w=>w.replace(/^[-']+|[-']+$/g,"")).filter(w=>w.length>2 && !STOP.has(w) && !/^\d+$/.test(w));
+}
+function scoreSentiment(str){
+  let s=0; const t=clean(str).toLowerCase().replace(/[^a-z0-9\s'-]/g," ").split(/\s+/);
+  for (let i=0;i<t.length;i++){ let v = POS.has(t[i])?1:(NEG.has(t[i])?-1:0);
+    if (v && i>0 && /^(not|no|never|dont|didnt|cant|wont|isnt|arent)$/.test(t[i-1])) v=-v; s+=v; }
+  return s;
+}
+function sentiment(values){ let pos=0,neu=0,neg=0;
+  for (const v of values){ if (isBlank(v)) continue; const s=scoreSentiment(v); if (s>0)pos++; else if (s<0)neg++; else neu++; }
+  return { pos,neu,neg };
+}
+
+function renderFeedback(rows){
+  const grid = $("feedbackGrid"); grid.innerHTML="";
+  const tcols = colsOfType("text").slice(0,3);
+  $("textBadge").textContent = tcols.length ? `${tcols.length} field${tcols.length!==1?"s":""}` : "none";
+  if (!tcols.length){ grid.innerHTML = `<p class="muted-note">No open-text questions were detected in this dataset.</p>`; return; }
+
+  const attrCol = State.filterCols[0] || null;
+
+  tcols.forEach(col=>{
+    const values = rows.map(r=>r[col]).filter(v=>!isBlank(v));
+
+    // themes: bigrams (>=2) + top unigrams
+    const uni={}, bi={};
+    values.forEach(v=>{ const t=tokenize(v); t.forEach(w=>uni[w]=(uni[w]||0)+1);
+      for (let i=0;i<t.length-1;i++){ const b=t[i]+" "+t[i+1]; bi[b]=(bi[b]||0)+1; } });
+    const bigrams = Object.entries(bi).filter(([,c])=>c>=2).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    const bwords = new Set(bigrams.flatMap(([p])=>p.split(" ")));
+    const unigrams = Object.entries(uni).sort((a,b)=>b[1]-a[1]).filter(([w])=>!bwords.has(w)).slice(0,10);
+    const themes = [...bigrams,...unigrams].sort((a,b)=>b[1]-a[1]).slice(0,12);
+
+    // representative quotes: most positive, most negative, richest
+    const scored = values.map(v=>({text:clean(v),score:scoreSentiment(v),kw:tokenize(v).length})).filter(o=>o.text.length>3);
+    const byPos=[...scored].sort((a,b)=>b.score-a.score), byNeg=[...scored].sort((a,b)=>a.score-b.score), byRich=[...scored].sort((a,b)=>b.kw-a.kw);
+    const picks = dedupe([byPos[0],byNeg[0],byRich[0],byRich[1]]).slice(0,3);
+    const s = sentiment(values); const t=s.pos+s.neu+s.neg||1;
+
+    const card = document.createElement("div"); card.className="card fb-card";
+    card.innerHTML = `<div class="card__pad">
+      <h3>${escHtml(col)}</h3>
+      <div class="csub">Recurring words · representative comments</div>
+      <div class="themes">${
+        themes.length ? themes.map(([w,c])=>`<span class="theme">${escHtml(w)}<span class="cnt">${c}</span></span>`).join("")
+                      : `<span class="muted-note">No recurring keywords for this selection.</span>`
+      }</div>
+      <div class="mini-sent">
+        <div class="mini-sent__bar">
+          <span style="background:var(--pos);width:${s.pos/t*100}%"></span>
+          <span style="background:var(--neu);width:${s.neu/t*100}%"></span>
+          <span style="background:var(--neg);width:${s.neg/t*100}%"></span>
+        </div>
+        <div class="mini-sent__legend">
+          <span>Positive <b>${Math.round(s.pos/t*100)}%</b></span>
+          <span>Neutral <b>${Math.round(s.neu/t*100)}%</b></span>
+          <span>Negative <b>${Math.round(s.neg/t*100)}%</b></span>
+        </div>
+      </div>
+      <div class="quotes">${
+        picks.length ? picks.map(p=>{
+          const cls = p.score>0?"pos":(p.score<0?"neg":"neu"); const lbl=p.score>0?"Positive":(p.score<0?"Negative":"Neutral");
+          const attr = attrCol ? findAttr(rows,col,p.text,attrCol) : "";
+          return `<div class="quote"><p>“${escHtml(truncate(p.text,220))}”</p>
+            <div class="qmeta"><span class="tag ${cls}"><span class="sw" style="background:currentColor"></span>${lbl}</span>${attr?`<span>${escHtml(attrCol)}: ${escHtml(attr)}</span>`:""}</div></div>`;
+        }).join("") : `<span class="muted-note">No comments to show for this selection.</span>`
+      }</div>
+    </div>`;
+    grid.appendChild(card);
+  });
+}
+function findAttr(rows,tcol,text,attrCol){ const r=rows.find(x=>clean(x[tcol])===text); return r?clean(r[attrCol]):""; }
+function dedupe(arr){ const seen=new Set(),out=[]; for (const o of arr){ if(!o||seen.has(o.text))continue; seen.add(o.text); out.push(o);} return out; }
+const truncate=(s,n)=> s.length>n ? s.slice(0,n-1).trimEnd()+"…" : s;
+
+/* ============================================================================
+   9. VERDICT & ACTIONS
+   ============================================================================ */
+function renderVerdict(rows){
+  const seg = State.filterCols.some(c=>State.filters[c].size)
+    ? "the current selection" : "all responses";
+  const numCols = colsOfType("numeric");
+  const tcol = colsOfType("text")[0];
+
+  // numeric extremes
+  let low=null, high=null;
+  if (numCols.length){
+    const stats = numCols.map(c=>{ const v=rows.map(r=>toNumber(r[c])).filter(n=>!Number.isNaN(n));
+      return { col:c, avg:round1(mean(v)), scale:+niceScale(State.meta[c].numMax) }; }).filter(s=>!Number.isNaN(s.avg));
+    if (stats.length){ low=[...stats].sort((a,b)=>a.avg-b.avg)[0]; high=[...stats].sort((a,b)=>b.avg-a.avg)[0]; }
+  }
+  // sentiment
+  let sent=null, negWords=[];
+  if (tcol){
+    const values = rows.map(r=>r[tcol]).filter(v=>!isBlank(v));
+    const s = sentiment(values); const t=s.pos+s.neu+s.neg;
+    if (t){ sent={ pos:Math.round(s.pos/t*100), neg:Math.round(s.neg/t*100) };
+      const nw={}; values.filter(v=>scoreSentiment(v)<0).forEach(v=>tokenize(v).forEach(w=>nw[w]=(nw[w]||0)+1));
+      negWords = Object.entries(nw).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([w])=>w);
+    }
+  }
+  // completion
+  const cols=State.headers.length; let filled=0; for (const r of rows) for (const h of State.headers) if(!isBlank(r[h])) filled++;
+  const completion = (rows.length&&cols)? Math.round(filled/(rows.length*cols)*100):100;
+
+  // ---- verdict prose ----
+  let mood = "mixed";
+  if (sent){ mood = sent.pos>=55 ? "broadly positive" : (sent.neg>=35 ? "leaning critical" : "mixed"); }
+  const P = [];
+  P.push(`Across <span class="hl-purple">${fmtInt.format(rows.length)}</span> responses (${seg}), feedback is <span class="hl-purple">${mood}</span>${sent?` at <span class="hl-gold">${sent.pos}% positive</span>`:``}.`);
+  if (low && high && low.col!==high.col){
+    P.push(` <span class="hl-purple">${escHtml(low.col)}</span> is the weakest area at <span class="hl-gold">${low.avg}/${low.scale}</span> and should be the focus, while <span class="hl-purple">${escHtml(high.col)}</span> (<span class="hl-gold">${high.avg}/${high.scale}</span>) is a clear strength to protect.`);
+  } else if (low){
+    P.push(` The strongest signal is <span class="hl-purple">${escHtml(low.col)}</span>, averaging <span class="hl-gold">${low.avg}/${low.scale}</span>.`);
+  }
+  if (sent && sent.neg>=25 && negWords.length){
+    P.push(` Critical comments cluster around <span class="hl-gold">${negWords.map(escHtml).join(", ")}</span>.`);
+  }
+  P.push(` Average completion sits at <span class="hl-gold">${completion}%</span>.`);
+  $("verdictBox").innerHTML = `<h3>What the data is telling us</h3><p>${P.join("")}</p>`;
+
+  // ---- data supports ----
+  const facts = [];
+  facts.push(`<strong>${fmtInt.format(rows.length)}</strong> responses analysed${rows.length!==State.rows.length?` (filtered from ${fmtInt.format(State.rows.length)})`:``}.`);
+  if (low) facts.push(`<strong>${escHtml(low.col)}</strong> scores lowest at <strong>${low.avg}/${low.scale}</strong>.`);
+  if (high && (!low || high.col!==low.col)) facts.push(`<strong>${escHtml(high.col)}</strong> scores highest at <strong>${high.avg}/${high.scale}</strong>.`);
+  const cc = chartableCols()[0];
+  if (cc){ const tal=tallyCol(rows,cc); const top=Object.entries(tal).sort((a,b)=>b[1]-a[1])[0];
+    if (top) facts.push(`Most common <strong>${escHtml(cc)}</strong> response is <strong>${escHtml(top[0])}</strong> (${Math.round(top[1]/(rows.length||1)*100)}%).`); }
+  if (sent) facts.push(`Open-text sentiment is <strong>${sent.pos}% positive</strong>, <strong>${sent.neg}% negative</strong>.`);
+  facts.push(`Average completion is <strong>${completion}%</strong>.`);
+
+  // ---- actions ----
+  const actions = [];
+  if (low) actions.push(`Prioritise improvements to <strong>${escHtml(low.col)}</strong>, the lowest-rated area.`);
+  if (sent && sent.neg>=25 && negWords.length) actions.push(`Address recurring concerns around <strong>${negWords.map(escHtml).join(", ")}</strong> raised in comments.`);
+  if (completion<88) actions.push(`Shorten the survey or make questions optional to lift the <strong>${completion}%</strong> completion rate.`);
+  if (high && (!low || high.col!==low.col)) actions.push(`Maintain and share what is working in <strong>${escHtml(high.col)}</strong>.`);
+  if (State.filterCols.length) actions.push(`Compare segments using the <strong>${escHtml(State.filterCols[0])}</strong> filter to localise issues.`);
+  if (!actions.length) actions.push(`Keep monitoring responses; no critical issues stand out in this selection.`);
+
+  $("dataList").innerHTML = facts.slice(0,6).map(f=>`<li>${f}</li>`).join("");
+  $("actionList").innerHTML = actions.slice(0,5).map(a=>`<li>${a}</li>`).join("");
+}
+
+/* ============================================================================
+   10. UI HELPERS / MOTION
+   ============================================================================ */
+function clearData(){
+  State.charts.forEach(c=>c.destroy()); State.charts=[];
+  $("report").hidden = true; $("uploadView").hidden = false;
+  $("fileChip").classList.remove("is-on"); $("fileInput").value="";
+  window.scrollTo({top:0, behavior: REDUCED?"auto":"smooth"});
+}
+function reveal(){
+  if (REDUCED) return;
+  document.querySelectorAll("#report .section, .report-head").forEach((s,i)=>{
+    s.classList.remove("reveal"); void s.offsetWidth; s.style.animationDelay=(i*70)+"ms"; s.classList.add("reveal");
+  });
+}
+function countUp(el, target, opts={}){
+  target = Number(target)||0;
+  const { suffix="", decimals=0 } = opts;
+  const fmt = (n)=> decimals ? n.toFixed(decimals) : fmtInt.format(Math.round(n));
+  if (REDUCED){ el.textContent = fmt(target)+suffix; return; }
+  const dur=650, t0=performance.now();
+  (function step(now){ const p=Math.min((now-t0)/dur,1); const e=1-Math.pow(1-p,3);
+    el.textContent = fmt(target*e)+suffix; if (p<1) requestAnimationFrame(step); else el.textContent=fmt(target)+suffix;
+  })(performance.now());
+}
+let toastTimer;
+function toast(msg, err){ const t=$("toast"); t.textContent=msg; t.classList.toggle("err",!!err); t.classList.add("is-on");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("is-on"),3600); }
+
+/* ============================================================================
+   11. SAMPLE DATA
+   ============================================================================ */
+function loadSample(){
+  const years=["Year 7","Year 8","Year 9","Year 10","Year 11","Year 12"];
+  const faculties=["Commerce","Design","HPE","I&S","Lang & Lit","Language Acquisition","Mathematics","Music","Science","The Arts"];
+  const campuses=["Elsternwick","St Kilda Road","Glen Waverley"];
+  const freq=["Never","Rarely","Sometimes","Often","Frequently"];
+  const devices=["Keyboard","Mouse","Trackpad","Touchscreen","Stylus","Camera"];
+  const posEnjoy=[
+    "The teachers are incredibly supportive and the stylus makes annotating notes easy.",
+    "I love the wide range of co-curricular activities and the clean facilities.",
+    "Great sense of community; everyone is friendly and welcoming.",
+    "The music and arts program is inspiring and engaging.",
+    "Being able to draw diagrams in OneNote with the stylus is fantastic for maths.",
+    "Sport opportunities are excellent and inclusive.",
+    "My teachers make learning fun and the touchscreen helps in science.",
+    "The wellbeing support has been amazing this year."
+  ];
+  const negImprove=[
+    "The stylus is often not charged and the software is slow to load.",
+    "Homework workload can be overwhelming and stressful.",
+    "Some classrooms are overcrowded and the wifi is unreliable.",
+    "The laptops create more problems than benefits; annotating is clumsy.",
+    "We could no longer easily draw movement pathways without the touch screen.",
+    "The software used in science should be updated and easier to access.",
+    "Battery life is poor and lockers are outdated.",
+    "Communication from the school could be clearer."
+  ];
+  const neutral=["Overall it's fine, nothing stands out.","It's okay, similar to previous years.","No strong opinion either way."];
+  const headers=["Timestamp","Year Level","Faculty","Campus","Draw with finger","Draw with stylus","Overall Satisfaction","Teaching Quality","Devices used in class","Would Recommend","What did you enjoy most?","What could we improve?"];
+  const rows=[headers];
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  const wfreq=(bias)=>{ const r=Math.random(); // bias 0..1 higher=more frequent
+    const idx=Math.min(4,Math.floor(Math.pow(r,1-bias*0.6)*5)); return freq[idx]; };
+  const skew=(lo,hi,b)=>{ const r=Math.pow(Math.random(),1-b*0.6); return Math.round(lo+(1-r)*(hi-lo)); };
+  for (let i=0;i<93;i++){
+    const yl=pick(years); const senior=years.indexOf(yl)>=4;
+    const sat=skew(2,5,senior?0.35:0.6);
+    const teach=Math.min(5,Math.max(1,sat+(Math.random()<0.4?1:0)-(Math.random()<0.2?1:0)));
+    const d=new Date(2027,4,1+(i%28));
+    const rec= sat>=4?"Yes":(sat===3?(Math.random()<0.6?"Yes":"No"):"No");
+    const devSet=devices.filter(()=>Math.random()<0.55); if(!devSet.length) devSet.push("Keyboard");
+    const enjoy = Math.random()<0.12 ? "" : (sat>=4?pick(posEnjoy):(sat<=2?pick(neutral):pick(posEnjoy)));
+    const improve= Math.random()<0.1 ? "" : (sat<=3?pick(negImprove):(Math.random()<0.5?pick(negImprove):pick(neutral)));
+    rows.push([ d.toISOString().slice(0,10), yl, pick(faculties), pick(campuses),
+      wfreq(0.35), wfreq(0.3), sat, teach, devSet.join(", "), rec, enjoy, improve ]);
+  }
+  ingest(rows, "student-laptop-programme-teacher-survey.csv");
+}
+
+/* ============================================================================
+   12. WIRE-UP
+   ============================================================================ */
+function init(){
+  const dz=$("dropzone"), input=$("fileInput");
+  $("browseBtn").addEventListener("click", ()=>input.click());
+  $("changeFile").addEventListener("click", ()=>input.click());
+  $("sampleBtn").addEventListener("click", loadSample);
+  input.addEventListener("change", e=>{ if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+  ["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev, e=>{ e.preventDefault(); dz.classList.add("is-drag"); }));
+  ["dragleave","drop"].forEach(ev=>dz.addEventListener(ev, e=>{ e.preventDefault(); if (ev!=="dragleave"||e.target===dz) dz.classList.remove("is-drag"); }));
+  dz.addEventListener("drop", e=>{ const f=e.dataTransfer.files[0]; if (f) handleFile(f); });
+
+  if (typeof XLSX==="undefined") toast("Could not load the file-parsing library (offline?).", true);
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
