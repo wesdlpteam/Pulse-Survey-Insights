@@ -8,7 +8,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Spectral:wght@500;600;700&display=swap" rel="stylesheet" />
 
 <!-- Required libraries (client-side parsing + charts) -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -44,9 +44,9 @@
   --line:       #ece6ef;
   --line-strong:#ddd2e2;
 
-  --pos:        #2e7d5b;  --pos-bg:#e7f3ec;
-  --neg:        #c0563f;  --neg-bg:#fbeae6;
-  --neu:        #8a7d93;  --neu-bg:#f0ecf2;
+  --pos:        #2e7d5b;  --pos-bg:#e7f3ec;  --pos-ink:#1f6d4c;
+  --neg:        #c0563f;  --neg-bg:#fbeae6;  --neg-ink:#a5382a;
+  --neu:        #8a7d93;  --neu-bg:#f0ecf2;  --neu-ink:#5c5265;
 
   --verdict-bg:     #faf5e6;
   --verdict-border: #ecdfb8;
@@ -56,7 +56,8 @@
   --ease:cubic-bezier(.22,1,.36,1);
 
   --z-sticky:100; --z-pop:200; --z-toast:300;
-  --font:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display:"Spectral", Georgia, "Times New Roman", serif;
 }
 
 *,*::before,*::after{ box-sizing:border-box; }
@@ -64,6 +65,7 @@ html{ -webkit-text-size-adjust:100%; }
 body{ margin:0; font-family:var(--font); color:var(--ink); background:var(--bg); line-height:1.55; font-size:16px; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
 h1,h2,h3,h4,p{ margin:0; }
 h1,h2,h3{ text-wrap:balance; letter-spacing:-.02em; line-height:1.12; }
+.upload h1, .report-head h1, .verdict h3{ font-family:var(--font-display); font-weight:700; letter-spacing:-.01em; }
 button{ font-family:inherit; cursor:pointer; }
 :focus-visible{ outline:2.5px solid var(--brand); outline-offset:2px; border-radius:4px; }
 ::selection{ background:var(--lilac); color:var(--brand); }
@@ -168,19 +170,19 @@ main{ padding-bottom:4rem; }
 
 .mini-sent{ margin-top:1.1rem; }
 .mini-sent__bar{ display:flex; height:8px; border-radius:999px; overflow:hidden; background:var(--line); }
-.mini-sent__bar span{ display:block; height:100%; transition:width .6s var(--ease); }
+.mini-sent__bar span{ display:block; height:100%; transform-origin:left; animation:barGrow .6s var(--ease) both; }
 .mini-sent__legend{ display:flex; flex-wrap:wrap; gap:.4rem 1.1rem; margin-top:.6rem; font-size:.78rem; color:var(--muted); }
 .mini-sent__legend b{ color:var(--ink-2); font-variant-numeric:tabular-nums; }
 
 .quotes{ display:flex; flex-direction:column; gap:.7rem; margin-top:1.2rem; }
-.quote{ background:var(--lilac-25); border:1px solid var(--line); border-left:3px solid var(--gold); border-radius:0 var(--r-sm) var(--r-sm) 0; padding:.8rem .95rem; }
+.quote{ background:var(--lilac-25); border:1px solid var(--line); border-radius:var(--r-sm); padding:.85rem 1rem; }
 .quote p{ font-size:.9rem; color:var(--ink-2); }
 .quote .qmeta{ display:flex; align-items:center; gap:.55rem; margin-top:.5rem; font-size:.74rem; color:var(--muted); }
 .tag{ display:inline-flex; align-items:center; gap:.3rem; font-weight:700; border-radius:999px; padding:.12rem .5rem; font-size:.68rem; }
 .tag .sw{ width:6px; height:6px; border-radius:50%; }
-.tag.pos{ background:var(--pos-bg); color:var(--pos); }
-.tag.neg{ background:var(--neg-bg); color:var(--neg); }
-.tag.neu{ background:var(--neu-bg); color:var(--neu); }
+.tag.pos{ background:var(--pos-bg); color:var(--pos-ink); }
+.tag.neg{ background:var(--neg-bg); color:var(--neg-ink); }
+.tag.neu{ background:var(--neu-bg); color:var(--neu-ink); }
 
 /* ---- Verdict & actions ---- */
 .verdict{ background:var(--verdict-bg); border:1px solid var(--verdict-border); border-radius:var(--r-md); padding:clamp(1.3rem,2.6vw,1.8rem); }
@@ -205,6 +207,7 @@ footer b{ color:var(--brand); }
 
 /* ---- Motion (base visible; .reveal only enhances) ---- */
 @keyframes rise{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:none; } }
+@keyframes barGrow{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
 .reveal{ animation:rise .55s var(--ease) both; }
 @media (prefers-reduced-motion: reduce){ *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; } }
 

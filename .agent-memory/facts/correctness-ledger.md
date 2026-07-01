@@ -30,6 +30,13 @@ axe-core WCAG 2.0/2.1/2.2 A+AA rule set on the live render: **0 violations** on 
 Caveat: axe automatically catches roughly a third to a half of WCAG issues; keyboard + screen-reader
 spot-checks are still needed before a full AA claim.
 
+## CL-5 (design pass, 2026-07-01) — latent tag contrast fixed
+The polish pass's a11y re-scan surfaced a real latent fail: the small sentiment tags rendered text
+below 4.5:1 on their pale badges (`.tag.pos` ~4.4:1, `.tag.neg` ~3.9:1, `.tag.neu` ~3.3:1). Fixed with
+darker text-only tokens (`--pos-ink`/`--neg-ink`/`--neu-ink`); badge fills + chart colours unchanged.
+Re-verified 0 axe violations on BOTH fixtures (sample renders neg/neu tags). Design pass also swapped
+Inter -> IBM Plex Sans (body) + Spectral (display headings) and removed the `.quote` gold side-stripe.
+
 ## CL-3 FIXED + re-verified (2026-07-01) — "Responses in view" KPI showed 0
 CONFIRMED real (reproduced on BOTH fixtures: the response card showed 0 while the verdict knew the
 true count). Root cause: in `renderKPIs` (index.html ~L591-592) the responses card passed `0` as the
