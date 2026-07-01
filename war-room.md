@@ -5,7 +5,7 @@ you unblock. A claim becomes DECIDED only after an INDEPENDENT seat attacked it 
 FAILED. Lead = referee + release-valve, never the message path for the challenge. Never nest
 orchestrators. Leave-the-ball handoffs, not await/monitor.
 
-- **Current wave:** WAVE 1 — prove the army: stand up the numeric oracle + a11y pass on the Survey Analyser and hunt real discrepancies.
+- **Current wave:** WAVE 2 (real multi-agent) — make the report USEFUL: exclude identifier/PII columns (Id, Email, Timestamp, Name) from all analysis, and rework the verdict into actionable synthesis. User-reported.
 - **Adaptive tier:** UNIVERSAL-only (no learner-facing surface yet → L2/L4/L7 parked).
 - **Round cap (default):** 3
 - **Goal / definition of done:** an INDEPENDENT numeric oracle (not the app's own code) re-derives the app's KPIs on a pinned fixture; diff run against the live path; any discrepancy logged to the correctness/hallucination ledger with its oracle. Ceremony-with-no-catch = FAIL (L3 watching).
@@ -49,3 +49,24 @@ orchestrators. Leave-the-ball handoffs, not await/monitor.
 
 ## ESCALATIONS (lead runs the oracle to resolve)
 - 
+
+---
+## WAVE 2 BOARD (real multi-agent) — 2026-07-01
+Core index.html edit = SINGLE OWNER (lead). Prep + verification = parallel agents. Board is lead-maintained.
+
+**Round 1 (parallel):**
+| Seat | Agent | Task | Oracle |
+|---|---|---|---|
+| P1 | worker (bg) | PII + edge-case fixtures + expected-columns answer key | hand-reasoned exclusions |
+| P2 | general (bg) | synthesis design: local heuristic + responsible OpenAI-key AI option | existing data + privacy rules |
+| P3 | Explore (bg) | map every column-type consumption site (completeness) | source read |
+| L6 | Gemini (lead-run) | red-team identifier-detection rules for false pos/neg | independent model |
+
+**Then:** L1 (lead, single owner) implements -> V (verifier + critic) attacks on live path + a11y + false-positive audit.
+
+**OPEN decision (user):** AI comment-synthesis handling (OpenAI key offered) — PII-stripped opt-in vs local-only.
+
+### DECIDED (Wave 2)
+| # | Claim | Oracle | Result |
+|---|---|---|---|
+| W2-1 | Identifier/PII columns (Id, Email, Timestamp, Student ID) excluded from all analysis; real measures (Age, Score, Q1 Rating) kept. | live-path on pii + edge fixtures + a11y, vs the expected-columns answer key | CONFIRMED - matches the key; Average now shows the real rating, not Id. Gemini red-team unavailable (503), used edge fixtures instead. |

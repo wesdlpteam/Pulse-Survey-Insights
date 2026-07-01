@@ -408,6 +408,32 @@ function deriveTitle(name){
    types: numeric | categorical | text | date | multi
    ============================================================================ */
 const DATE_RE = /^\d{4}[-/]\d{1,2}[-/]\d{1,2}|^\d{1,2}[-/]\d{1,2}[-/]\d{2,4}/;
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+/* Identifier / personal-info columns are EXCLUDED from all analysis (type "id"): no average, chart,
+   filter, or verdict. Detected by header keyword + an email data check. Deliberately conservative:
+   we do NOT flag a column just for being all-unique numbers, so a real measure like Age or Score that
+   happens to be all-distinct is never mistaken for an ID. This also minimises processing of personal
+   data (nothing to average, and nothing identifying to hand to an AI summary later). */
+function looksLikeNameField(h){
+  if (/^name\s+(a|an|the|one|two|three|some|your|any|each)\b/.test(h)) return false; // "name a subject" = a question
+  if (h === "name") return true;
+  if (/\b(first|last|full|given|family|sur|student|child|parent|your|respondent|staff|teacher)\s*names?\b/.test(h)) return true;
+  return /\bnames?$/.test(h) && h.split(" ").length <= 3;
+}
+function isIdentifierCol(header, values, n){
+  const h = clean(header).toLowerCase().replace(/\s+/g," ");
+  if (/\bids?\b/.test(h)) return true;                    // Id, IDs, Student ID, Response ID
+  if (/e-?\s?mail/.test(h)) return true;                  // email, e-mail
+  if (/\btimestamp\b/.test(h)) return true;
+  if (/\b(phone|mobile|telephone)\b/.test(h)) return true;
+  if (/\b(address|postcode|postal code|zip)\b/.test(h)) return true;
+  if (/\bip\b/.test(h)) return true;
+  if (/\b(dob|birth)\b/.test(h)) return true;
+  if (looksLikeNameField(h)) return true;
+  if (n > 0){ let em = 0; for (const v of values) if (EMAIL_RE.test(clean(v))) em++; if (em/n >= 0.5) return true; }
+  return false;
+}
 
 function analyse(){
   State.meta = {};
@@ -431,10 +457,13 @@ function analyse(){
           avgWords=ratio(wordTotal), avgLen=ratio(lenTotal), delimRatio=ratio(delimCells), tokPer=ratio(tokTotal);
 
     let type;
+    // Identifier / personal-info columns (Id, Email, Name, Timestamp, phone, address) are EXCLUDED
+    // from all analysis. Checked FIRST so they never reach numeric/date/text handling.
+    if (isIdentifierCol(h, values, n)) type="id";
     // Date-like columns (e.g. a "Timestamp") must be caught BEFORE numeric/multi. toNumber() runs
     // parseFloat, so "1/1/24" reads as 1; without this, a date column masquerades as a 1-5 rating
     // and pollutes the average KPI and the verdict's weakest/strongest picks.
-    if (dateRatio>=0.7) type="date";
+    else if (dateRatio>=0.7) type="date";
     else if (numericRatio>=0.8 && distinct.length>1) type="numeric";
     else if (delimRatio>=0.4 && tokenSet.size>=2 && tokenSet.size<=25 && tokPer>=1.4 && avgWords<12) type="multi";
     else if (avgWords>=4 || (distinctRatio>0.75 && avgLen>22 && n>4)) type="text";
@@ -595,8 +624,9 @@ function renderKPIs(rows){
     shown===total ? "Responses in view" : `Responses in view (${Math.round(shown/(total||1)*100)}% of ${fmtInt.format(total)})`, false, shown));
 
   // completion
-  const cols = State.headers.length; let filled=0;
-  for (const r of rows) for (const h of State.headers) if (!isBlank(r[h])) filled++;
+  const anCols = State.headers.filter(h=>State.meta[h].type!=="id");
+  const cols = anCols.length; let filled=0;
+  for (const r of rows) for (const h of anCols) if (!isBlank(r[h])) filled++;
   const completion = (rows.length&&cols)? filled/(rows.length*cols)*100 : 0;
 
   const numCols = colsOfType("numeric");
@@ -863,7 +893,7 @@ function renderVerdict(rows){
     }
   }
   // completion
-  const cols=State.headers.length; let filled=0; for (const r of rows) for (const h of State.headers) if(!isBlank(r[h])) filled++;
+  const anCols=State.headers.filter(h=>State.meta[h].type!=="id"); const cols=anCols.length; let filled=0; for (const r of rows) for (const h of anCols) if(!isBlank(r[h])) filled++;
   const completion = (rows.length&&cols)? Math.round(filled/(rows.length*cols)*100):100;
 
   // ---- verdict prose ----

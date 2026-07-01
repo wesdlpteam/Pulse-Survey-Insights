@@ -37,6 +37,20 @@ darker text-only tokens (`--pos-ink`/`--neg-ink`/`--neu-ink`); badge fills + cha
 Re-verified 0 axe violations on BOTH fixtures (sample renders neg/neu tags). Design pass also swapped
 Inter -> IBM Plex Sans (body) + Spectral (display headings) and removed the `.quote` gold side-stripe.
 
+## CL-6 (Wave 2, multi-agent, 2026-07-02) — identifier / PII columns excluded from analysis
+Real user complaint: the app showed "Average Id" and analysed an Email column. Root cause: any numeric-
+or text-looking column was treated as data. Fix: new column type "id" (`isIdentifierCol`: header keywords
+id/email/name/timestamp/phone/address + an email data-pattern check; deliberately NOT "all-unique numbers",
+so real measures like Age/Score are never wrongly dropped), checked FIRST in `analyse()`; plus the two
+completion-tally loops (renderKPIs + renderVerdict) now skip type "id". Verified on the live path:
+- pii-survey.csv: Average is now "Overall Satisfaction" (was Id); Id/Email/Timestamp gone from charts,
+  filters and verdict; response count 10, completion 100%.
+- edge-columns.csv (false-positive trap): Student ID + Email Address excluded; Age, Score /100, Q1 Rating
+  correctly KEPT. Matches `test/fixtures/expected-columns.md` exactly.
+- axe WCAG 2.2 AA: 0 violations on both fixtures.
+Cross-model red-team (Gemini) was UNAVAILABLE (503 overload + network); rules were red-teamed against the
+edge fixtures instead (honest gap). Recipe: `node live-path.mjs <index> test/fixtures/pii-survey.csv`.
+
 ## CL-3 FIXED + re-verified (2026-07-01) — "Responses in view" KPI showed 0
 CONFIRMED real (reproduced on BOTH fixtures: the response card showed 0 while the verdict knew the
 true count). Root cause: in `renderKPIs` (index.html ~L591-592) the responses card passed `0` as the

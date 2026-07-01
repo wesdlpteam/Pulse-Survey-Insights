@@ -41,6 +41,8 @@ try {
     });
     const v = document.querySelector('#verdictBox');
     out.verdict = v ? v.textContent.replace(/\s+/g, ' ').trim().slice(0, 700) : null;
+    out.chartTitles = [...document.querySelectorAll('.chart-card h3, .fb-card h3')].map(e => e.textContent.trim());
+    out.filterLabels = [...document.querySelectorAll('.filter-row__label')].map(e => e.textContent.trim());
     return out;
   });
   result.xlsxReady = xlsxReady;
