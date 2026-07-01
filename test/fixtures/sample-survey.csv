@@ -1,0 +1,10 @@
+Timestamp,Satisfaction (1-5),Recommend,NPS (0-10),Comments
+2024-01-01,5,Yes,10,Great tool
+2024-01-02,4,Yes,9,Very good
+2024-01-03,3,No,6,It was okay
+2024-01-04,,No,3,Slow to load
+2024-01-05,2,No,4,
+2024-01-06,5,YES,10,Loved it
+2024-01-07,1,no,0,Terrible
+,,,,
+2024-01-09,4,Yes,8,"Good, would recommend"

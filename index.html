@@ -428,9 +428,12 @@ function analyse(){
           avgWords=ratio(wordTotal), avgLen=ratio(lenTotal), delimRatio=ratio(delimCells), tokPer=ratio(tokTotal);
 
     let type;
-    if (numericRatio>=0.8 && distinct.length>1) type="numeric";
+    // Date-like columns (e.g. a "Timestamp") must be caught BEFORE numeric/multi. toNumber() runs
+    // parseFloat, so "1/1/24" reads as 1; without this, a date column masquerades as a 1-5 rating
+    // and pollutes the average KPI and the verdict's weakest/strongest picks.
+    if (dateRatio>=0.7) type="date";
+    else if (numericRatio>=0.8 && distinct.length>1) type="numeric";
     else if (delimRatio>=0.4 && tokenSet.size>=2 && tokenSet.size<=25 && tokPer>=1.4 && avgWords<12) type="multi";
-    else if (dateRatio>=0.7) type="date";
     else if (avgWords>=4 || (distinctRatio>0.75 && avgLen>22 && n>4)) type="text";
     else type="categorical";
 
@@ -586,7 +589,7 @@ function renderKPIs(rows){
   const cards = [];
 
   cards.push(kpiCard(fmtInt.format(shown), "",
-    shown===total ? "Responses in view" : `Responses in view (${Math.round(shown/(total||1)*100)}% of ${fmtInt.format(total)})`, false, 0));
+    shown===total ? "Responses in view" : `Responses in view (${Math.round(shown/(total||1)*100)}% of ${fmtInt.format(total)})`, false, shown));
 
   // completion
   const cols = State.headers.length; let filled=0;
