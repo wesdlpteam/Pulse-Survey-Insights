@@ -25,7 +25,6 @@ only if a learner-facing surface is added, and run the 3-question bootstrap firs
 ## Standing rules (from V2)
 - Zero-hallucination / source-or-silent binds every seat incl. the lead. Tag provenance; "cannot verify"
   over gap-fill.
-- Survey data may be personal → keep processing client-side; no exfiltration; redact before any external
-  delegation (per `delegating-to-gemini`).
+- Survey data may be personal → keep processing client-side; no exfiltration.
 - Merge bar: suite passes (necessary not sufficient) + independent numeric oracle agrees + a11y passes +
   no open L3 RED + L6 cleared material claims.

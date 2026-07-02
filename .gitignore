@@ -10,3 +10,7 @@ node_modules/
 .impeccable/
 
 # Coding V2 kaizen state lives globally (~/.claude/coding-v2/state) — never committed per-repo
+
+# Coding V2 transient war-room board (per-wave game state) + any test-export artifact
+.warroom/
+exported-report.html

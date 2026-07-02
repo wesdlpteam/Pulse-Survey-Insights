@@ -12,7 +12,8 @@ but hands-on. *(Role details inferred from config, not independently verified.)*
 - Honesty over confidence: **"cannot verify" beats a confident guess.** Wants to be told when
   something is aspirational vs real.
 - Writing: warm + clear, **no em-dashes**, no AI tells.
-- Cross-model checks via [[delegating-to-gemini]] (Gemini 3.5 Flash) on load-bearing calls.
+- Independent second opinions on load-bearing calls via a fresh-context agent on a different
+  Claude model. (Gemini delegation removed 2026-07-02 at Nathan's request — Claude-only.)
 - Wesley brand kit + `impeccable` for design work.
 - Redact Wesley College personal data before any external delegation.
 
