@@ -133,6 +133,15 @@ button{ font-family:inherit; cursor:pointer; }
 .dropzone p{ color:var(--muted); font-size:.9rem; margin-top:.15rem; }
 .dropzone__actions{ display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; margin-top:.4rem; }
 
+/* ---- Survey purpose (optional, before upload) ---- */
+.purpose-field{ margin-top:1.6rem; }
+.purpose-field label{ display:block; font-size:.82rem; font-weight:700; color:var(--ink-2); margin-bottom:.45rem; }
+.purpose-field textarea{ width:100%; border:1px solid var(--line-strong); border-radius:var(--r-sm); padding:.7rem .85rem; font-size:.95rem; font-family:inherit; color:var(--ink); background:#fff; line-height:1.5; resize:vertical; min-height:2.8rem; }
+.purpose-field textarea::placeholder{ color:var(--muted); }
+.purpose-help{ margin-top:.5rem; font-size:.82rem; color:var(--muted); line-height:1.5; max-width:70ch; }
+.purpose-line{ margin-top:.7rem; font-family:var(--font-display); font-size:clamp(1.05rem,1.6vw,1.28rem); font-weight:600; color:var(--ink-2); max-width:70ch; }
+.purpose-line[hidden]{ display:none; }
+
 /* ============================================================ REPORT ============================================================ */
 #report[hidden]{ display:none; }
 .report-head{ padding-block:clamp(1.8rem,5vw,3rem) 0; }
@@ -219,28 +228,21 @@ main{ padding-bottom:4rem; }
 .dlist li::before{ content:""; position:absolute; left:0; top:.5em; width:7px; height:7px; border-radius:50%; background:var(--gold); }
 .dlist li strong{ color:var(--ink); font-weight:700; }
 
-/* ---- AI summary (opt-in) ---- */
-.ai-card p{ font-size:.92rem; color:var(--ink-2); line-height:1.55; max-width:70ch; }
-.ai-card h3{ font-size:1.05rem; font-weight:700; color:var(--ink); }
-.ai-field{ margin-top:1.3rem; }
-.ai-field label{ display:block; font-size:.82rem; font-weight:700; color:var(--ink-2); margin-bottom:.4rem; }
-.ai-field__row{ display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; }
-.ai-field__row input[type="password"]{ flex:1 1 240px; min-width:200px; border:1px solid var(--line-strong); border-radius:var(--r-sm); padding:.6rem .85rem; font-size:.92rem; font-family:inherit; color:var(--ink); background:#fff; }
-.ai-help{ margin-top:.55rem; font-size:.82rem; color:var(--muted); line-height:1.5; max-width:70ch; }
-.ai-consent{ margin-top:1.3rem; padding-top:1.1rem; border-top:1px solid var(--line); }
-.ai-consent__row{ display:flex; align-items:flex-start; gap:.6rem; font-size:.92rem; color:var(--ink-2); cursor:pointer; max-width:70ch; }
-.ai-consent__row input[type="checkbox"]{ margin-top:.2rem; width:17px; height:17px; accent-color:var(--brand); flex:0 0 auto; }
-.ai-actions{ display:flex; align-items:center; gap:.9rem; flex-wrap:wrap; margin-top:1.3rem; }
+/* ---- AI key bar (top, compact) ---- */
+.aikeybar{ border-bottom:1px solid var(--line); background:var(--lilac-25); }
+.aikeybar__inner{ display:flex; align-items:center; gap:.5rem .9rem; flex-wrap:wrap; padding-block:.6rem; font-size:.84rem; }
+.aikeybar__label{ font-weight:700; color:var(--brand); flex:0 0 auto; white-space:nowrap; }
+.aikeybar__inner input[type="password"]{ flex:1 1 190px; min-width:160px; max-width:280px; border:1px solid var(--line-strong); border-radius:var(--r-sm); padding:.42rem .7rem; font-size:.86rem; font-family:inherit; color:var(--ink); background:#fff; }
+.aikeybar__consent{ display:flex; align-items:center; gap:.4rem; color:var(--ink-2); cursor:pointer; flex:1 1 260px; }
+.aikeybar__consent input[type="checkbox"]{ width:15px; height:15px; accent-color:var(--brand); flex:0 0 auto; }
+.aikeybar__state{ color:var(--muted); flex:1 1 auto; }
+.aikeybar__state.is-err{ color:var(--neg-ink); font-weight:600; }
+
+/* ---- AI verdict ---- */
+.verdict-ai-controls{ display:flex; align-items:center; gap:.7rem; }
 .ai-status{ font-size:.88rem; color:var(--muted); }
 .ai-status.is-err{ color:var(--neg-ink); font-weight:600; }
-.ai-banner{ background:var(--verdict-bg); border:1px solid var(--verdict-border); border-radius:var(--r-sm); padding:.75rem 1rem; font-size:.88rem; color:var(--ink-2); font-weight:600; margin-top:1.4rem; }
-.ai-blocks{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-top:1.1rem; }
-.ai-block h4{ font-size:.92rem; font-weight:700; color:var(--brand); margin-bottom:.6rem; }
-.ai-list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.6rem; }
-.ai-list li{ font-size:.88rem; color:var(--ink-2); line-height:1.5; }
-.ai-list strong{ color:var(--ink); }
-.ai-example{ display:block; margin-top:.2rem; color:var(--muted); font-style:italic; }
-.ai-raw{ margin-top:.6rem; background:var(--lilac-25); border:1px solid var(--line); border-radius:var(--r-sm); padding:.85rem; font-size:.82rem; white-space:pre-wrap; word-break:break-word; color:var(--ink-2); max-height:280px; overflow:auto; }
+.ai-banner{ display:flex; align-items:center; gap:.4rem; font-size:.75rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--gold-ink); margin-bottom:.6rem; }
 
 /* ---- Empty / misc ---- */
 .muted-note{ color:var(--muted); font-size:.9rem; font-style:italic; }
@@ -260,12 +262,13 @@ footer b{ color:var(--brand); }
 @media (max-width:720px){
   .action-grid{ grid-template-columns:1fr; }
   .filter-row__label{ min-width:100%; }
-  .ai-field__row{ flex-direction:column; align-items:stretch; }
+  .aikeybar__inner{ flex-direction:column; align-items:stretch; }
+  .aikeybar__inner input[type="password"]{ max-width:none; }
 }
 
 /* ---- Print (Save as PDF) ---- */
 @media print{
-  .upload, .report-actions, .ai-field, .ai-consent, .ai-actions, .toast{ display:none !important; }
+  .upload, .report-actions, .aikeybar, .verdict-ai-controls, .toast{ display:none !important; }
   .topbar{ position:static; backdrop-filter:none; box-shadow:none; }
   body{ background:#fff; }
   .card{ border:1px solid #ddd; box-shadow:none; break-inside:avoid; }
@@ -300,6 +303,21 @@ footer b{ color:var(--brand); }
   </div>
 </header>
 
+<!-- ======================= AI KEY BAR (compact, visible on upload + report) ======================= -->
+<div class="aikeybar" id="aiKeyBar">
+  <div class="wrap aikeybar__inner">
+    <span class="aikeybar__label" id="aiKeyLabel">AI verdict (optional)</span>
+    <input type="password" id="aiKey" autocomplete="off" spellcheck="false" placeholder="Paste your OpenAI API key" aria-label="OpenAI API key" aria-describedby="aiKeyLabel" />
+    <button class="btn btn--ghost btn--sm" id="aiKeySave" type="button">Save key</button>
+    <button class="btn btn--ghost btn--sm" id="aiKeyForget" type="button">Forget key</button>
+    <label class="aikeybar__consent" for="aiConsent">
+      <input type="checkbox" id="aiConsent" />
+      <span>Send question stats &amp; open-text comments to OpenAI for an AI-written verdict</span>
+    </label>
+    <span class="aikeybar__state" id="aiKeyState" role="status" aria-live="polite">No key saved in this browser yet.</span>
+  </div>
+</div>
+
 <!-- ======================= UPLOAD (empty state) ======================= -->
 <section class="upload wrap" id="uploadView">
   <div class="upload__inner">
@@ -323,6 +341,12 @@ footer b{ color:var(--brand); }
         <button class="btn btn--ghost" id="sampleBtn" type="button">Load sample data</button>
       </div>
     </div>
+
+    <div class="purpose-field">
+      <label for="surveyPurpose">What is this survey about? (optional)</label>
+      <textarea id="surveyPurpose" rows="2" placeholder="e.g. Term 2 feedback on the student laptop programme. A short line here helps focus the AI verdict."></textarea>
+      <p class="purpose-help">This stays in your browser. If you use the AI verdict, it is passed along only to focus the summary, never treated as survey data.</p>
+    </div>
   </div>
 </section>
 
@@ -334,6 +358,7 @@ footer b{ color:var(--brand); }
   <section class="report-head wrap">
     <span class="eyebrow gold" id="reportEyebrow">Survey Analysis</span>
     <h1 id="reportTitle">Survey results</h1>
+    <p class="purpose-line" id="reportPurpose" hidden></p>
     <p class="desc" id="reportDesc"></p>
     <div class="report-actions">
       <button class="btn btn--ghost btn--sm" id="exportHtml" type="button">
@@ -378,7 +403,13 @@ footer b{ color:var(--brand); }
 
     <!-- Verdict & actions -->
     <section class="section" id="secVerdict">
-      <div class="section__head"><span class="eyebrow muted">Verdict &amp; recommended actions</span></div>
+      <div class="section__head">
+        <span class="eyebrow muted">Verdict &amp; recommended actions</span>
+        <span class="verdict-ai-controls">
+          <span class="ai-status" id="aiVerdictStatus" role="status" aria-live="polite"></span>
+          <button class="btn btn--ghost btn--sm" id="aiVerdictRefresh" type="button" hidden>Update with AI</button>
+        </span>
+      </div>
       <div class="verdict" id="verdictBox"></div>
       <div class="action-grid">
         <div class="card action-card"><div class="card__pad">
@@ -390,42 +421,6 @@ footer b{ color:var(--brand); }
           <ul class="dlist" id="actionList"></ul>
         </div></div>
       </div>
-    </section>
-
-    <!-- AI summary (opt-in, off by default) -->
-    <section class="section" id="aiPanel">
-      <div class="section__head"><span class="eyebrow muted">AI summary · optional</span></div>
-      <div class="card ai-card"><div class="card__pad">
-        <h3>Get an AI-written summary of the comments</h3>
-        <p>This is entirely optional. If you turn it on, the open-text comments from this report (never names, emails, IDs or any other column) are sent to OpenAI, who write a short summary back. Nothing is sent unless you add a key below and tick the consent box.</p>
-
-        <div class="ai-field">
-          <label for="aiKey">OpenAI API key</label>
-          <div class="ai-field__row">
-            <input type="password" id="aiKey" autocomplete="off" spellcheck="false" placeholder="Paste your OpenAI API key" />
-            <button class="btn btn--ghost btn--sm" id="aiKeySave" type="button">Save key</button>
-            <button class="btn btn--ghost btn--sm" id="aiKeyForget" type="button">Forget key</button>
-          </div>
-          <p class="ai-help" id="aiKeyState" aria-live="polite">No key saved in this browser yet.</p>
-          <p class="ai-help">Your key is stored only in this browser (in local storage) and is only ever sent to OpenAI. Remove it any time with Forget key. Do not save it on a shared or public computer.</p>
-        </div>
-
-        <div class="ai-consent">
-          <label class="ai-consent__row" for="aiConsent">
-            <input type="checkbox" id="aiConsent" />
-            <span>I understand the comments will be sent to OpenAI.</span>
-          </label>
-          <p class="ai-help">Open-text comments can contain personal details that people typed in themselves, even though names, emails and IDs are never included.</p>
-        </div>
-
-        <div class="ai-actions">
-          <button class="btn btn--primary" id="aiRun" type="button" disabled>Summarise with AI</button>
-          <button class="btn btn--ghost btn--sm" id="aiCancel" type="button" hidden>Cancel</button>
-          <span class="ai-status" id="aiStatus" role="status" aria-live="polite"></span>
-        </div>
-
-        <div id="aiResult"></div>
-      </div></div>
     </section>
   </main>
 </div>
@@ -444,7 +439,12 @@ const State = {
   filterCols: [],       // columns rendered as pill-filter rows
   filters: {},          // colName -> Set of selected values (empty = all)
   charts: [],           // Chart.js instances (destroyed on re-render)
-  title: "Survey results"
+  title: "Survey results",
+  purpose: "",          // optional organiser-supplied description of what the survey is about
+  aiVerdict: null,      // last successful AI verdict object {heading,paragraph,supports,actions} (baked into exports)
+  hydrated: false,      // true when booted from an exported report (no key bar, no AI calls)
+  aiAutoVerdictDone: false, // whether the auto AI verdict has been attempted for the current file
+  aiVerdictGen: 0            // bumped on every render(); guards against stale async AI responses
 };
 
 const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -495,6 +495,10 @@ function ingest(matrix, name){
 
   State.headers = headers; State.rows = rows;
   State.title = deriveTitle(name);
+  const purposeEl = $("surveyPurpose");
+  State.purpose = purposeEl ? clean(purposeEl.value) : "";
+  State.aiVerdict = null;
+  State.hydrated = false;
   analyse();
   chooseFilterCols();
   boot(name);
@@ -540,13 +544,19 @@ function isIdentifierCol(header, values, n){
   // reaches the average KPI, charts, verdict, the AI summary, or the interactive export.
   if (n >= 8){
     const distinctCount = new Set(values.map(v=>clean(v))).size;
-    let numCount = 0, longnum = 0;
+    let numCount = 0, longnum = 0, wordTotal = 0, lenTotal = 0;
     for (const v of values){
+      const s = clean(v);
       if (!Number.isNaN(toNumber(v))) numCount++;
-      if (/^\d{7,}$/.test(clean(v).replace(/[\s().+-]/g,""))) longnum++;
+      if (/^\d{7,}$/.test(s.replace(/[\s().+-]/g,""))) longnum++;
+      wordTotal += s.split(/\s+/).filter(Boolean).length; lenTotal += s.length;
     }
+    const uniqueRatio = distinctCount/n, avgWords = wordTotal/n, avgLen = lenTotal/n;
     if (numCount/n >= 0.9 && distinctCount === n) return true;   // all-unique numeric = an identifier
     if (longnum/n >= 0.6) return true;                            // mostly long digit strings = phone/ref
+    // Near-unique SHORT values are names / references / codes (identifiers), not a segment and not
+    // free-text. Free-text comments are longer (avgWords >= 4), so they are kept and analysed.
+    if (uniqueRatio >= 0.9 && avgWords <= 3 && avgLen <= 25) return true;
   }
   return false;
 }
@@ -646,11 +656,21 @@ function boot(name){
   $("fileChip").classList.add("is-on");
   $("fileName").textContent = name;
   $("reportTitle").textContent = State.title;
+  const purposeLine = $("reportPurpose");
+  if (purposeLine){
+    if (State.purpose){ purposeLine.textContent = State.purpose; purposeLine.hidden = false; }
+    else { purposeLine.textContent = ""; purposeLine.hidden = true; }
+  }
   $("reportDesc").textContent =
     `${fmtInt.format(State.rows.length)} responses across ${State.headers.length} questions. Filter by any dimension below; every panel recalculates live.`;
+  // A hydrated export carries its verdict baked in and must never touch OpenAI: hide the key bar and
+  // treat the auto-run as already done so render() will not start a network call.
+  const keyBar = $("aiKeyBar");
+  if (keyBar) keyBar.hidden = !!State.hydrated;
+  State.aiAutoVerdictDone = State.hydrated ? true : false;
+  aiSetVerdictStatus("");
   buildFilterUI();
   render(true);
-  aiResetPanel();
   toast(`Loaded ${fmtInt.format(State.rows.length)} responses across ${State.headers.length} columns.`);
 }
 
@@ -713,13 +733,27 @@ function smartSort(a,b){
    5. RENDER ORCHESTRATOR
    ============================================================================ */
 function render(first){
+  if (aiVerdictController){ aiVerdictController.abort(); aiVerdictController = null; }
+  State.aiVerdictGen++; // invalidates any in-flight AI verdict request tied to the previous filter set
+
   const rows = filteredRows();
   renderShowing(rows);
   renderKPIs(rows);
   renderCharts(rows);
   renderFeedback(rows);
-  renderVerdict(rows);
-  if (first) reveal();
+  renderHeuristicVerdict(rows); // always render the fallback verdict first, synchronously
+  // A hydrated export with a baked verdict shows it as-is (no key, no network); otherwise the
+  // heuristic verdict above stands until/unless a live AI verdict replaces it.
+  if (State.hydrated && State.aiVerdict) renderAiVerdict(State.aiVerdict);
+  aiUpdateVerdictControls();
+
+  if (first){
+    if (!State.hydrated && !State.aiAutoVerdictDone && aiVerdictEligible()){
+      State.aiAutoVerdictDone = true;
+      aiGenerateVerdict(rows, { auto:true });
+    }
+    reveal();
+  }
 }
 
 function renderShowing(rows){
@@ -1001,8 +1035,11 @@ function quoteBlock(items, cls, lbl, rows, col, attrCol){
 
 /* ============================================================================
    9. VERDICT & ACTIONS
+   This is the default, always-available heuristic verdict. Section 10 below can
+   override its DOM output with an AI-written verdict when a key + consent are
+   present; if that call is unavailable, offline, or fails, this stays as-is.
    ============================================================================ */
-function renderVerdict(rows){
+function renderHeuristicVerdict(rows){
   const seg = State.filterCols.some(c=>State.filters[c].size)
     ? "the current selection" : "all responses";
   const numCols = colsOfType("numeric");
@@ -1070,58 +1107,63 @@ function renderVerdict(rows){
 }
 
 /* ============================================================================
-   10. AI SUMMARY (opt-in) — sends ONLY open-text comments (no id/email/name/
-   timestamp/number columns, no raw rows) to OpenAI on explicit user action.
-   The API key never leaves this browser except in the Authorization header
-   of that one request, is stored only in localStorage, and is never written
-   into the DOM or logged.
+   10. AI VERDICT (opt-in) — replaces the heuristic verdict above with one
+   written by OpenAI, grounded ONLY in aggregate stats the app has already
+   computed (never raw rows) plus the open-text comments (never id/email/name/
+   timestamp/number columns). Runs automatically once per uploaded file when a
+   key is saved and consent is ticked; falls back to the heuristic verdict on
+   any error, timeout, missing key/consent, or offline. The API key never
+   leaves this browser except in the Authorization header of that one request,
+   is stored only in localStorage, and is never written into the DOM or logged.
    ============================================================================ */
 const AI_KEY_STORAGE = "insight.openai.key";
+const AI_CONSENT_STORAGE = "insight.openai.consent";
 const AI_MODEL = "gpt-4o-mini"; // change this to a current OpenAI model if needed
 const AI_TIMEOUT_MS = 30000;
 const AI_MAX_COMMENTS = 300;
 const AI_EMAIL_RE = /[^\s@]+@[^\s@]+\.[^\s@]+/g;
 const AI_DIGITRUN_RE = /\d{7,}/g;
 
-const AI_SYSTEM_PROMPT = "You summarise anonymous survey comments for a school. You will receive a JSON array of short written comments and nothing else about the people who wrote them. Use ONLY the comments provided; do not add facts, names, numbers or examples that are not in them. If the comments do not support a clear conclusion, say so plainly. Quote comments word for word for examples. Write warmly and plainly for a non-technical reader, with no jargon and no em-dashes. Do not identify or speculate about individuals or repeat any personal detail. Return ONLY valid JSON of shape {\"praised\":[{\"theme\":\"\",\"example\":\"\"}],\"concerns\":[{\"theme\":\"\",\"example\":\"\"}],\"next_steps\":[\"\"]}. At most 5 praised, 5 concerns, 4 next_steps; each next step is one concrete action grounded only in the concerns. Ignore empty or one-word comments.";
+const AI_VERDICT_SYSTEM_PROMPT = "You write a short, honest verdict for a survey report for a school. You will receive JSON with aggregate statistics the app has already computed (per-question name, type, average with its rating scale, category distribution with counts and percentages), overall open-text sentiment percentages, a completion percentage, a response count, and a list of open-text comments each paired with the question they answered. Use ONLY the numbers and comments given to you; NEVER invent, estimate, or round to a statistic that was not given to you. Quote comments word for word if you use them as examples. If the data does not support a claim, say so plainly. Write in warm, plain English for a non-technical reader: no jargon, no em-dashes. Do not identify or speculate about individuals, and never repeat a personal detail from a comment. Return ONLY valid JSON of shape {\"heading\":\"\",\"paragraph\":\"\",\"supports\":[\"\"],\"actions\":[\"\"]}. heading is a short, context-specific title under 10 words. paragraph is 2 to 4 sentences synthesising the findings. supports is up to 6 short bullet facts drawn directly from the stats given. actions is up to 5 concrete recommended actions grounded only in the data given.";
 
-let aiController = null;
-let aiTimer = null;
+let aiVerdictController = null;
 
 function aiGetKey(){ try{ return localStorage.getItem(AI_KEY_STORAGE) || ""; }catch{ return ""; } }
 function aiHasKey(){ return !!aiGetKey(); }
+function aiGetConsent(){ try{ return localStorage.getItem(AI_CONSENT_STORAGE) === "1"; }catch{ return false; } }
+function aiSetConsent(v){ try{ if (v) localStorage.setItem(AI_CONSENT_STORAGE, "1"); else localStorage.removeItem(AI_CONSENT_STORAGE); }catch{ /* ignore */ } }
+function aiVerdictEligible(){ return aiHasKey() && aiGetConsent(); }
 
 function aiSaveKey(){
   const val = clean($("aiKey").value);
-  if (!val){ aiSetStatus("Paste your OpenAI key first, then save.", true); return; }
+  if (!val){ aiSetKeyState("Paste your OpenAI key first, then save.", true); return; }
   try{ localStorage.setItem(AI_KEY_STORAGE, val); }
-  catch{ aiSetStatus("Could not save the key in this browser.", true); return; }
+  catch{ aiSetKeyState("Could not save the key in this browser.", true); return; }
   $("aiKey").value = "";
-  aiSetKeyState();
-  aiSetStatus("Key saved in this browser.");
-  aiUpdateRunEnabled();
+  aiSetKeyState("Key saved in this browser.");
+  aiUpdateVerdictControls();
 }
 function aiForgetKey(){
   try{ localStorage.removeItem(AI_KEY_STORAGE); }catch{ /* ignore */ }
   $("aiKey").value = "";
-  aiSetKeyState();
-  aiSetStatus("Key removed from this browser.");
-  aiUpdateRunEnabled();
+  aiSetKeyState("Key removed from this browser.");
+  aiUpdateVerdictControls();
 }
-function aiSetKeyState(){
+function aiSetKeyState(msg, isErr){
   const el = $("aiKeyState"); if (!el) return;
-  el.textContent = aiHasKey() ? "A key is saved in this browser." : "No key saved in this browser yet.";
+  el.textContent = msg || (aiHasKey() ? "A key is saved in this browser." : "No key saved in this browser yet.");
+  el.classList.toggle("is-err", !!isErr);
 }
-function aiUpdateRunEnabled(){
-  const btn = $("aiRun"); if (!btn) return;
-  btn.disabled = !(aiHasKey() && $("aiConsent").checked);
-}
-function aiSetStatus(msg, isErr){
-  const el = $("aiStatus"); if (!el) return;
+function aiSetVerdictStatus(msg, isErr){
+  const el = $("aiVerdictStatus"); if (!el) return;
   el.textContent = msg || "";
   el.classList.toggle("is-err", !!isErr);
 }
-function aiShowCancel(show){ const c = $("aiCancel"); if (c) c.hidden = !show; }
+function aiUpdateVerdictControls(){
+  const btn = $("aiVerdictRefresh"); if (!btn) return;
+  // Never offer the live re-run on a hydrated export (no key, no network by design).
+  btn.hidden = State.hydrated || !aiVerdictEligible();
+}
 
 /* scrub best-effort: emails and 7+ digit runs (phone/ID-like numbers) never leave the browser */
 function aiScrub(text){
@@ -1151,43 +1193,101 @@ function aiBuildComments(){
       if (isBlank(r[col])) continue;
       const comment = aiScrub(r[col]);
       if (!comment) continue;
-      all.push(groupCol ? { comment, group: clean(r[groupCol]) } : { comment });
+      all.push(groupCol ? { question: col, comment, group: clean(r[groupCol]) } : { question: col, comment });
     }
   }
   return { comments: all.slice(0, AI_MAX_COMMENTS), total: all.length, truncated: all.length > AI_MAX_COMMENTS, questionCols: tcols };
 }
 
-function aiResetPanel(){
-  if (aiController) aiController.abort();
-  aiSetStatus("");
-  const res = $("aiResult"); if (res) res.innerHTML = "";
-  aiShowCancel(false);
+/* Aggregate-only grounding for the AI verdict: for every analysable (non-id) column, its name,
+   type, and either an average+scale (numeric) or a category distribution with counts and
+   percentages (categorical/multi/date), plus overall completion, response count and open-text
+   sentiment. No raw rows and no id/email/name/timestamp/number-identifier columns ever appear here. */
+function aiBuildStats(rows){
+  const anCols = State.headers.filter(h=>State.meta[h].type!=="id");
+
+  const columns = anCols.map(h=>{
+    const m = State.meta[h];
+    const entry = { name:h, type:m.type };
+    if (m.type==="numeric"){
+      const vals = rows.map(r=>toNumber(r[h])).filter(n=>!Number.isNaN(n));
+      entry.average = round1(mean(vals));
+      entry.scale = niceScale(m.numMax);
+    } else if ((m.type==="categorical" || m.type==="multi" || m.type==="date") && lowCard(h,2,20)){
+      // Only send breakdowns for genuine low-count groups (real segments). A high-variety column is
+      // noise for a verdict and is where names / free-text / identifiers hide, so skip it (defence-in-depth).
+      const tally = tallyCol(rows, h);
+      const total = Object.values(tally).reduce((a,b)=>a+b,0) || 1;
+      entry.distribution = Object.entries(tally).sort((a,b)=>b[1]-a[1]).slice(0,20)
+        .map(([value,count])=>({ value, count, pct: Math.round(count/total*100) }));
+    }
+    return entry;
+  });
+
+  const tcol = colsOfType("text")[0];
+  let overallSentiment = null;
+  if (tcol){
+    const values = rows.map(r=>r[tcol]).filter(v=>!isBlank(v));
+    const s = sentiment(values); const t = s.pos+s.neu+s.neg;
+    if (t) overallSentiment = { positivePct:Math.round(s.pos/t*100), neutralPct:Math.round(s.neu/t*100), negativePct:Math.round(s.neg/t*100) };
+  }
+
+  const cols = anCols.length; let filled=0;
+  for (const r of rows) for (const h of anCols) if (!isBlank(r[h])) filled++;
+  const completionPct = (rows.length && cols) ? Math.round(filled/(rows.length*cols)*100) : 100;
+
+  return { responseCount: rows.length, completionPct, overallSentiment, columns };
 }
 
-async function aiRunSummary(){
+/* Renders the AI-written verdict into the same DOM the heuristic verdict uses, clearly labelled. */
+function renderAiVerdict(data){
+  const heading = clean(data.heading) || "What the data is telling us";
+  const paragraph = clean(data.paragraph);
+  const supports = Array.isArray(data.supports) ? data.supports.map(clean).filter(Boolean).slice(0,6) : [];
+  const actions = Array.isArray(data.actions) ? data.actions.map(clean).filter(Boolean).slice(0,5) : [];
+
+  $("verdictBox").innerHTML =
+    `<div class="ai-banner">AI-written from your data - check it against the numbers below</div>` +
+    `<h3>${escHtml(heading)}</h3>` +
+    (paragraph ? `<p>${escHtml(paragraph)}</p>` : "");
+  $("dataList").innerHTML = supports.length ? supports.map(f=>`<li>${escHtml(f)}</li>`).join("") : `<li>No specific findings were returned.</li>`;
+  $("actionList").innerHTML = actions.length ? actions.map(a=>`<li>${escHtml(a)}</li>`).join("") : `<li>No specific actions were returned.</li>`;
+}
+
+function aiHandleVerdictHttpError(status){
+  let msg;
+  if (status===401) msg = "That key was not accepted, showing the standard verdict instead.";
+  else if (status===429) msg = "OpenAI is busy or over its limit, showing the standard verdict instead.";
+  else if (status>=500) msg = "OpenAI had a problem, showing the standard verdict instead.";
+  else msg = "OpenAI could not process that request, showing the standard verdict instead.";
+  aiSetVerdictStatus(msg, true);
+}
+
+/* Generates (or regenerates) the AI verdict for the given filtered rows. Called automatically once
+   per uploaded file (opts.auto) and on demand via the "Update with AI" control. On any failure the
+   heuristic verdict already rendered by renderHeuristicVerdict() is left in place untouched. */
+async function aiGenerateVerdict(rows, opts={}){
+  if (!aiVerdictEligible()) return;
   const key = aiGetKey();
-  if (!key){ aiSetStatus("Save an API key first.", true); return; }
-  if (!$("aiConsent").checked){ aiSetStatus("Tick the consent box first.", true); return; }
+  if (!key) return;
 
-  const { comments, total, truncated, questionCols } = aiBuildComments();
-  if (!comments.length){ aiSetStatus("No open-text comments were found to summarise.", true); return; }
+  const { comments, total, truncated } = aiBuildComments();
+  if (!comments.length && !opts.auto){ aiSetVerdictStatus("No open-text comments were found to ground an AI verdict.", true); return; }
+  const stats = aiBuildStats(rows);
 
-  const runBtn = $("aiRun");
-  runBtn.disabled = true;
-  aiShowCancel(true);
-  $("aiResult").innerHTML = "";
-  aiSetStatus(truncated
-    ? `Summarising… (using the first ${fmtInt.format(AI_MAX_COMMENTS)} of ${fmtInt.format(total)} comments)`
-    : "Summarising…");
-
-  const userLine = questionCols.length
-    ? `Survey question${questionCols.length>1?"s":""}: ${questionCols.join(", ")}`
-    : "Survey comments";
-  const userPrompt = `${userLine}\nComments (JSON): ${JSON.stringify(comments)}`;
-
-  aiController = new AbortController();
+  if (aiVerdictController) aiVerdictController.abort();
+  aiVerdictController = new AbortController();
+  const gen = ++State.aiVerdictGen;
   let timedOut = false;
-  aiTimer = setTimeout(()=>{ timedOut = true; aiController.abort(); }, AI_TIMEOUT_MS);
+  const timer = setTimeout(()=>{ timedOut = true; aiVerdictController.abort(); }, AI_TIMEOUT_MS);
+
+  const refreshBtn = $("aiVerdictRefresh");
+  if (refreshBtn) refreshBtn.disabled = true;
+  aiSetVerdictStatus(opts.auto ? "Writing an AI verdict from your data…" : "Updating the AI verdict…");
+
+  // The organiser's purpose (if given) is CONTEXT only: it focuses the verdict, it is never data.
+  const purposeLine = State.purpose ? `Survey purpose, described by the organiser: "${State.purpose}". Use this only to focus the verdict; do not treat it as data or invent from it.\n` : "";
+  const userPrompt = `${purposeLine}Stats (JSON): ${JSON.stringify(stats)}\nComments (JSON): ${JSON.stringify(comments)}`;
 
   try{
     const resp = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -1196,95 +1296,68 @@ async function aiRunSummary(){
       body: JSON.stringify({
         model: AI_MODEL,
         messages: [
-          { role:"system", content: AI_SYSTEM_PROMPT },
+          { role:"system", content: AI_VERDICT_SYSTEM_PROMPT },
           { role:"user", content: userPrompt }
         ],
         temperature: 0.2,
         max_tokens: 700,
         response_format: { type: "json_object" }
       }),
-      signal: aiController.signal
+      signal: aiVerdictController.signal
     });
 
-    if (!resp.ok){ aiHandleHttpError(resp.status); return; }
+    if (gen !== State.aiVerdictGen) return; // superseded by a newer render/request
+
+    if (!resp.ok){ aiHandleVerdictHttpError(resp.status); return; }
 
     const data = await resp.json();
     const raw = data && data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : "";
     let parsed = null;
     try{ parsed = JSON.parse(raw); }catch{ parsed = null; }
 
-    if (!parsed || typeof parsed!=="object"){
-      aiSetStatus("The AI's reply couldn't be read as structured data. Showing the raw reply below.", true);
-      aiRenderRaw(raw);
+    if (gen !== State.aiVerdictGen) return;
+
+    if (!parsed || typeof parsed!=="object" || !clean(parsed.heading)){
+      aiSetVerdictStatus("The AI's reply couldn't be used, showing the standard verdict instead.", true);
       return;
     }
 
-    aiSetStatus(truncated ? `Done. Only the first ${fmtInt.format(AI_MAX_COMMENTS)} of ${fmtInt.format(total)} comments were used.` : "Done.");
-    aiRenderResult(parsed);
+    // Keep the successful verdict so exportInteractiveHtml can bake it into the shared report,
+    // letting recipients see it with no key and no network call.
+    State.aiVerdict = {
+      heading: clean(parsed.heading),
+      paragraph: clean(parsed.paragraph),
+      supports: Array.isArray(parsed.supports) ? parsed.supports.map(clean).filter(Boolean).slice(0,6) : [],
+      actions: Array.isArray(parsed.actions) ? parsed.actions.map(clean).filter(Boolean).slice(0,5) : []
+    };
+    renderAiVerdict(State.aiVerdict);
+    aiSetVerdictStatus(truncated
+      ? `AI verdict ready (based on the first ${fmtInt.format(AI_MAX_COMMENTS)} of ${fmtInt.format(total)} comments).`
+      : "AI verdict ready.");
 
   }catch(err){
+    if (gen !== State.aiVerdictGen) return;
     if (err && err.name==="AbortError"){
-      aiSetStatus(timedOut ? "That took too long and was stopped." : "Summary cancelled.", true);
+      aiSetVerdictStatus(timedOut ? "That took too long, showing the standard verdict instead." : "AI verdict cancelled.", true);
     } else {
-      aiSetStatus("You appear to be offline, so the AI summary cannot run.", true);
+      aiSetVerdictStatus("You appear to be offline, so the AI verdict couldn't be generated.", true);
     }
   }finally{
-    clearTimeout(aiTimer); aiTimer=null; aiController=null;
-    aiShowCancel(false);
-    aiUpdateRunEnabled();
+    clearTimeout(timer);
+    if (gen === State.aiVerdictGen) aiVerdictController = null;
+    if (refreshBtn) refreshBtn.disabled = false;
   }
-}
-
-function aiHandleHttpError(status){
-  let msg;
-  if (status===401) msg = "That key was not accepted. Check you pasted the whole key and try again.";
-  else if (status===429) msg = "OpenAI is busy or over its limit. Wait and try again.";
-  else if (status>=500) msg = "OpenAI had a problem. Try again shortly.";
-  else msg = "OpenAI could not process that request. Check your key and try again.";
-  aiSetStatus(msg, true);
-}
-
-function aiRenderResult(data){
-  const praised = Array.isArray(data.praised) ? data.praised.slice(0,5) : [];
-  const concerns = Array.isArray(data.concerns) ? data.concerns.slice(0,5) : [];
-  const steps = Array.isArray(data.next_steps) ? data.next_steps.slice(0,4) : [];
-
-  const themeBlock = (items) => items.length
-    ? `<ul class="ai-list">${items.map(it=>{
-        const theme = escHtml(clean(it && it.theme));
-        const example = clean(it && it.example);
-        return `<li>${theme?`<strong>${theme}</strong>`:""}${example?`<span class="ai-example">“${escHtml(example)}”</span>`:""}</li>`;
-      }).join("")}</ul>`
-    : `<p class="muted-note">Nothing came through clearly for this.</p>`;
-
-  const stepsBlock = steps.length
-    ? `<ul class="dlist">${steps.map(s=>`<li>${escHtml(clean(s))}</li>`).join("")}</ul>`
-    : `<p class="muted-note">No specific next steps were suggested.</p>`;
-
-  $("aiResult").innerHTML = `
-    <div class="ai-banner">AI summary - generated by OpenAI from your comments. Check it against the comments before acting.</div>
-    <div class="ai-blocks">
-      <div class="ai-block"><h4>What people praised</h4>${themeBlock(praised)}</div>
-      <div class="ai-block"><h4>What needs attention</h4>${themeBlock(concerns)}</div>
-      <div class="ai-block"><h4>Suggested next steps</h4>${stepsBlock}</div>
-    </div>`;
-}
-function aiRenderRaw(raw){
-  $("aiResult").innerHTML = `
-    <div class="ai-banner">AI summary - generated by OpenAI from your comments. Check it against the comments before acting.</div>
-    <p class="muted-note">Here is the raw reply OpenAI returned:</p>
-    <pre class="ai-raw"></pre>`;
-  $("aiResult").querySelector(".ai-raw").textContent = raw || "(empty reply)";
 }
 
 function aiWire(){
   $("aiKeySave").addEventListener("click", aiSaveKey);
   $("aiKeyForget").addEventListener("click", aiForgetKey);
-  $("aiConsent").addEventListener("change", aiUpdateRunEnabled);
-  $("aiRun").addEventListener("click", aiRunSummary);
-  $("aiCancel").addEventListener("click", ()=>{ if (aiController) aiController.abort(); });
+  $("aiConsent").checked = aiGetConsent();
+  $("aiConsent").addEventListener("change", ()=>{ aiSetConsent($("aiConsent").checked); aiUpdateVerdictControls(); });
+  const refreshBtn = $("aiVerdictRefresh");
+  if (refreshBtn) refreshBtn.addEventListener("click", ()=>aiGenerateVerdict(filteredRows(), { auto:false }));
   aiSetKeyState();
-  aiUpdateRunEnabled();
+  aiUpdateVerdictControls();
 }
 
 /* ============================================================================
@@ -1386,6 +1459,11 @@ function hydrateFromExport(data){
   State.filters = {};
   State.filterCols.forEach(c => State.filters[c] = new Set());
   State.title = deriveTitle(data.fileName || "Survey results");
+  State.purpose = clean(data.purpose || "");
+  // A baked verdict means the recipient sees the AI verdict with no key and no OpenAI call. If it is
+  // absent, the heuristic verdict shows instead. Either way, hydrated exports never touch the network.
+  State.aiVerdict = (data.aiVerdict && typeof data.aiVerdict === "object") ? data.aiVerdict : null;
+  State.hydrated = true;
   boot(data.fileName || "insight-report.html");
 }
 
@@ -1398,7 +1476,10 @@ async function exportInteractiveHtml(){
     const rows = State.rows.map(r => { const o = {}; allowedHeaders.forEach(h => o[h] = r[h]); return o; });
     const filterCols = State.filterCols.filter(c => allowedHeaders.includes(c));
     const fileName = clean($("fileName").textContent) || "survey-export";
-    const payload = { headers: allowedHeaders, rows, meta, filterCols, fileName };
+    // Bake in the organiser's purpose and the AI verdict (if one was generated) so a shared report
+    // restores both and NEVER needs an API key or a network call to show the AI verdict.
+    const payload = { headers: allowedHeaders, rows, meta, filterCols, fileName, purpose: State.purpose || "" };
+    if (State.aiVerdict) payload.aiVerdict = State.aiVerdict;
 
     let html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
 
