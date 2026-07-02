@@ -14,3 +14,9 @@ node_modules/
 # Coding V2 transient war-room board (per-wave game state) + any test-export artifact
 .warroom/
 exported-report.html
+
+# Internal dev artifacts (kept local, not shipped in the product repo)
+.agent-memory/
+war-room.md
+coding-modes/
+CLAUDE.md
