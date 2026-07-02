@@ -139,6 +139,10 @@ button{ font-family:inherit; cursor:pointer; }
 .purpose-field textarea{ width:100%; border:1px solid var(--line-strong); border-radius:var(--r-sm); padding:.7rem .85rem; font-size:.95rem; font-family:inherit; color:var(--ink); background:#fff; line-height:1.5; resize:vertical; min-height:2.8rem; }
 .purpose-field textarea::placeholder{ color:var(--muted); }
 .purpose-help{ margin-top:.5rem; font-size:.82rem; color:var(--muted); line-height:1.5; max-width:70ch; }
+
+/* ---- Upload gate (shown when a file was dropped but no OpenAI key/consent yet) ---- */
+.upload-gate{ margin-top:1.4rem; background:var(--lilac-25); border:1px solid var(--line-strong); border-radius:var(--r-md); padding:1rem 1.2rem; }
+.upload-gate p{ font-size:.92rem; color:var(--ink-2); line-height:1.55; max-width:70ch; }
 .purpose-line{ margin-top:.7rem; font-family:var(--font-display); font-size:clamp(1.05rem,1.6vw,1.28rem); font-weight:600; color:var(--ink-2); max-width:70ch; }
 .purpose-line[hidden]{ display:none; }
 
@@ -191,10 +195,6 @@ main{ padding-bottom:4rem; }
 .feedback-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(400px,1fr)); gap:1rem; }
 .fb-card h3{ font-size:1rem; font-weight:700; color:var(--ink); }
 .fb-card .csub{ font-size:.82rem; color:var(--gold-ink); font-weight:600; margin-top:.15rem; }
-.themes{ display:flex; flex-wrap:wrap; gap:.45rem; margin-top:1rem; }
-.theme{ display:inline-flex; align-items:center; gap:.4rem; background:var(--lilac-50); color:var(--brand); border:1px solid var(--line); border-radius:999px; padding:.3rem .7rem; font-size:.84rem; font-weight:600; line-height:1.2; transition:transform .15s var(--ease), background .15s; }
-.theme:hover{ transform:translateY(-1px); background:var(--lilac); }
-.theme .cnt{ font-size:.76em; color:var(--muted); font-variant-numeric:tabular-nums; }
 
 .mini-sent{ margin-top:1.1rem; }
 .mini-sent__bar{ display:flex; height:8px; border-radius:999px; overflow:hidden; background:var(--line); }
@@ -215,49 +215,11 @@ main{ padding-bottom:4rem; }
 .quotes-label{ font-size:.78rem; font-weight:700; letter-spacing:.02em; color:var(--ink); margin-top:1.2rem; }
 .quotes-label + .quotes{ margin-top:.6rem; }
 
-/* ---- Theme drill-down (recurring-theme chips become disclosure buttons) ---- */
-button.theme{ border:1px solid var(--line); text-align:left; }
-.theme[aria-expanded="true"]{ background:var(--lilac); border-color:var(--brand-300); }
-.theme-drill[hidden]{ display:none; }
-.theme-drill{ margin-top:.9rem; padding-top:.9rem; border-top:1px dashed var(--line); }
-.theme-drill__label{ font-size:.78rem; font-weight:700; color:var(--ink); margin-bottom:.6rem; }
-.theme-drill .quotes{ margin-top:0; }
-.theme-drill__more{ margin-top:.5rem; font-size:.8rem; color:var(--muted); font-style:italic; }
-
 /* ---- Key findings strip (text-forward, not hero numbers) ---- */
 .findings{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1rem; }
 .finding{ background:var(--lilac-25); border:1px solid var(--line); border-radius:var(--r-md); padding:1.1rem 1.25rem; font-size:.92rem; color:var(--ink-2); line-height:1.55; }
 .finding .hl-gold{ color:var(--gold-ink); font-weight:700; }
 .finding .hl-purple{ color:var(--brand); font-weight:700; }
-
-/* ---- Rating spread (diverging low/neutral/high) ---- */
-.rspread-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:1rem; }
-.rspread-card h3{ font-size:1rem; font-weight:700; color:var(--ink); }
-.rspread-card .csub{ font-size:.82rem; color:var(--gold-ink); font-weight:600; margin-top:.15rem; }
-.rspread-row{ display:flex; align-items:stretch; height:26px; margin-top:1.1rem; border-radius:6px; overflow:hidden; background:var(--line); position:relative; }
-.rspread-row__left{ width:50%; display:flex; justify-content:flex-end; }
-.rspread-row__right{ width:50%; display:flex; justify-content:flex-start; }
-.rspread-row__center{ position:absolute; left:50%; top:0; bottom:0; width:1px; background:var(--line-strong); }
-.rspread-seg{ height:100%; }
-.rspread-seg--neg{ background:var(--neg); }
-.rspread-seg--pos{ background:var(--pos); }
-.rspread-seg--neuL,.rspread-seg--neuR{ background:var(--neu); }
-.rspread-legend{ display:flex; flex-wrap:wrap; gap:.4rem 1.1rem; margin-top:.65rem; font-size:.78rem; color:var(--muted); }
-.rspread-legend .sw{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:.4rem; vertical-align:middle; }
-.rspread-legend b{ color:var(--ink-2); font-variant-numeric:tabular-nums; }
-
-/* ---- Compare groups ---- */
-.compare-controls{ display:flex; flex-wrap:wrap; gap:1rem 1.4rem; }
-.compare-field{ display:flex; flex-direction:column; gap:.35rem; }
-.compare-field label{ font-size:.78rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); }
-.compare-field select{ font-family:inherit; font-size:.92rem; font-weight:600; color:var(--ink); background:#fff; border:1px solid var(--line-strong); border-radius:var(--r-sm); padding:.5rem .7rem; min-width:200px; }
-.compare-card .csub{ font-size:.82rem; color:var(--gold-ink); font-weight:600; margin-top:1.1rem; }
-.chart-table{ margin-top:1rem; }
-.chart-table summary{ font-size:.82rem; font-weight:700; color:var(--brand); cursor:pointer; width:max-content; }
-.chart-table summary:hover{ color:var(--brand-600); }
-.chart-table table{ width:100%; border-collapse:collapse; margin-top:.7rem; font-size:.88rem; }
-.chart-table th,.chart-table td{ text-align:left; padding:.5rem .7rem; border-bottom:1px solid var(--line); color:var(--ink-2); }
-.chart-table th{ color:var(--muted); font-weight:700; font-size:.76rem; text-transform:uppercase; letter-spacing:.05em; }
 
 /* ---- Verdict & actions ---- */
 .verdict{ background:var(--verdict-bg); border:1px solid var(--verdict-border); border-radius:var(--r-md); padding:clamp(1.3rem,2.6vw,1.8rem); }
@@ -308,7 +270,6 @@ footer b{ color:var(--brand); }
   .filter-row__label{ min-width:100%; }
   .aikeybar__inner{ flex-direction:column; align-items:stretch; }
   .aikeybar__inner input[type="password"]{ max-width:none; }
-  .compare-field select{ min-width:0; width:100%; }
 }
 
 /* ---- Print (Save as PDF) ---- */
@@ -351,7 +312,7 @@ footer b{ color:var(--brand); }
 <!-- ======================= AI KEY BAR (compact, visible on upload + report) ======================= -->
 <div class="aikeybar" id="aiKeyBar">
   <div class="wrap aikeybar__inner">
-    <span class="aikeybar__label" id="aiKeyLabel">AI verdict (optional)</span>
+    <span class="aikeybar__label" id="aiKeyLabel">OpenAI key (required to analyse)</span>
     <input type="password" id="aiKey" autocomplete="off" spellcheck="false" placeholder="Paste your OpenAI API key" aria-label="OpenAI API key" aria-describedby="aiKeyLabel" />
     <button class="btn btn--ghost btn--sm" id="aiKeySave" type="button">Save key</button>
     <button class="btn btn--ghost btn--sm" id="aiKeyForget" type="button">Forget key</button>
@@ -368,7 +329,7 @@ footer b{ color:var(--brand); }
   <div class="upload__inner">
     <span class="eyebrow gold">Survey Insights</span>
     <h1>Turn any survey export into an editorial-grade report.</h1>
-    <p class="lede">Drop in a CSV or Excel file. Pulse detects your columns, builds a per-question breakdown, surfaces recurring themes from open-text answers, and drafts a data-driven verdict. Everything runs in your browser; nothing is uploaded.</p>
+    <p class="lede">Drop in a CSV or Excel file, then add your OpenAI key above to unlock analysis. Pulse detects your columns, builds a per-question breakdown, surfaces recurring themes from open-text answers, and drafts an AI-written verdict. Your key stays in this browser; only anonymised comments and aggregate numbers are sent to OpenAI. Reports you share open with no key needed.</p>
 
     <div class="dropzone" id="dropzone">
       <div class="dropzone__icon" aria-hidden="true">
@@ -385,6 +346,10 @@ footer b{ color:var(--brand); }
         </button>
         <button class="btn btn--ghost" id="sampleBtn" type="button">Load sample data</button>
       </div>
+    </div>
+
+    <div class="upload-gate" id="uploadGate" role="status" aria-live="polite" hidden>
+      <p id="uploadGateMsg"></p>
     </div>
 
     <div class="purpose-field">
@@ -443,41 +408,6 @@ footer b{ color:var(--brand); }
       <div class="chart-grid" id="chartGrid"></div>
     </section>
 
-    <!-- Rating spread -->
-    <section class="section" id="secRatingSpread">
-      <div class="section__head">
-        <span class="eyebrow muted">Rating spread</span>
-        <span class="section__badge" id="ratingSpreadBadge"></span>
-      </div>
-      <div class="rspread-grid" id="ratingSpreadGrid"></div>
-    </section>
-
-    <!-- Compare groups -->
-    <section class="section" id="secCompare">
-      <div class="section__head"><span class="eyebrow muted">Compare groups</span></div>
-      <div class="card compare-card"><div class="card__pad">
-        <div class="compare-controls">
-          <div class="compare-field">
-            <label for="compareMetric">Metric</label>
-            <select id="compareMetric"></select>
-          </div>
-          <div class="compare-field">
-            <label for="compareSegment">Segment</label>
-            <select id="compareSegment"></select>
-          </div>
-        </div>
-        <div class="csub" id="compareSub"></div>
-        <div class="chart-wrap" id="compareChartWrap"><canvas id="compareCanvas"></canvas></div>
-        <details class="chart-table" id="compareTableWrap" hidden>
-          <summary>View as table</summary>
-          <table id="compareTable">
-            <thead><tr><th scope="col">Group</th><th scope="col">Average</th><th scope="col">n</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </details>
-      </div></div>
-    </section>
-
     <!-- Open feedback -->
     <section class="section" id="secText">
       <div class="section__head">
@@ -528,11 +458,12 @@ const State = {
   title: "Survey results",
   purpose: "",          // optional organiser-supplied description of what the survey is about
   aiVerdict: null,      // last successful AI verdict object {heading,paragraph,supports,actions} (baked into exports)
+  aiVerdictErrorMsg: null, // last AI verdict failure message for a LIVE report (drives the error+retry box)
   hydrated: false,      // true when booted from an exported report (no key bar, no AI calls)
   aiAutoVerdictDone: false, // whether the auto AI verdict has been attempted for the current file
   aiVerdictGen: 0,            // bumped on every render(); guards against stale async AI responses
-  compare: { metric: null, segment: null }, // Compare-groups panel selections (column names)
-  compareChart: null          // the Compare-groups Chart.js instance (destroyed on re-render)
+  pendingFile: null,     // a File dropped/selected before an OpenAI key + consent were in place
+  pendingSample: false   // "Load sample data" clicked before an OpenAI key + consent were in place
 };
 
 const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -552,8 +483,27 @@ function escHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ "&":"&amp;","<":
 /* ============================================================================
    1. FILE HANDLING
    ============================================================================ */
+/* An OpenAI key + consent are required to analyse a live upload (see section 10): without them,
+   the file is stashed and the upload screen explains why, instead of parsing and rendering a report. */
+function showUploadGateMessage(){
+  const gate = $("uploadGate"); if (!gate) return;
+  $("uploadGateMsg").textContent = "Pulse needs your OpenAI key to analyse a survey. Add it at the top and tick consent, then it runs automatically.";
+  gate.hidden = false;
+}
+function hideUploadGateMessage(){
+  const gate = $("uploadGate"); if (gate) gate.hidden = true;
+}
+
 function handleFile(file){
   if (!file) return;
+  if (!aiVerdictEligible()){
+    State.pendingFile = file;
+    State.pendingSample = false;
+    showUploadGateMessage();
+    return;
+  }
+  State.pendingFile = null;
+  hideUploadGateMessage();
   if (typeof XLSX === "undefined"){ toast("Parser library failed to load. Check your connection.", true); return; }
   const reader = new FileReader();
   reader.onerror = () => toast("Could not read that file.", true);
@@ -586,8 +536,10 @@ function ingest(matrix, name){
   const purposeEl = $("surveyPurpose");
   State.purpose = purposeEl ? clean(purposeEl.value) : "";
   State.aiVerdict = null;
+  State.aiVerdictErrorMsg = null;
   State.hydrated = false;
-  State.compare = { metric: null, segment: null };
+  State.pendingFile = null;
+  State.pendingSample = false;
   analyse();
   chooseFilterCols();
   boot(name);
@@ -717,17 +669,6 @@ function computeGroupAverages(rows, metricCol, segmentCol){
   });
   return Object.entries(groups).map(([group,vals])=>({ group, avg:round1(mean(vals)), n:vals.length }))
     .sort((a,b)=>b.avg-a.avg);
-}
-
-/* numeric columns with a small integer rating scale (e.g. 1-5), used for the diverging rating-spread */
-function ratingCols(){
-  return colsOfType("numeric").filter(h=>{
-    const m = State.meta[h];
-    if (m.numMin==null || m.numMax==null) return false;
-    if (!Number.isInteger(m.numMin) || !Number.isInteger(m.numMax)) return false;
-    if (m.numMax - m.numMin < 1 || m.numMax - m.numMin > 9 || m.numMax > 10) return false;
-    return lowCard(h, 2, 9);
-  });
 }
 
 /* columns worth charting (one horizontal bar chart each) */
@@ -861,13 +802,16 @@ function render(first){
   renderKPIs(rows);
   renderKeyFindings(rows);
   renderCharts(rows);
-  renderRatingSpread(rows);
-  renderCompare(rows);
   renderFeedback(rows);
-  renderHeuristicVerdict(rows); // always render the fallback verdict first, synchronously
-  // A hydrated export with a baked verdict shows it as-is (no key, no network); otherwise the
-  // heuristic verdict above stands until/unless a live AI verdict replaces it.
-  if (State.hydrated && State.aiVerdict) renderAiVerdict(State.aiVerdict);
+  // A hydrated export shows its baked verdict as-is (AI-written, or the heuristic fallback if none
+  // was baked in) with no key and no network call. A live report is gated behind an OpenAI key, so
+  // it always shows the AI verdict: a "generating" placeholder, the result, or an error + retry.
+  if (State.hydrated){
+    if (State.aiVerdict) renderAiVerdict(State.aiVerdict);
+    else renderHeuristicVerdict(rows);
+  } else {
+    renderLiveVerdictBox();
+  }
   aiUpdateVerdictControls();
 
   if (first){
@@ -1113,156 +1057,6 @@ function configureChartDefaults(){
 }
 
 /* ============================================================================
-   7b. RATING SPREAD — diverging low/neutral/high bar per rating-scale column.
-   Plain HTML/CSS (not canvas): the % legend beneath each bar IS the text
-   fallback, and the left/right position + colour + label together avoid
-   relying on colour alone (colourblind-safe secondary encoding).
-   ============================================================================ */
-function renderRatingSpread(rows){
-  const grid = $("ratingSpreadGrid"); grid.innerHTML = "";
-  const cols = ratingCols();
-  $("ratingSpreadBadge").textContent = `${cols.length} question${cols.length!==1?"s":""}`;
-  if (!cols.length){ grid.innerHTML = `<p class="muted-note">No rating-scale questions (e.g. 1-5) were detected to chart.</p>`; return; }
-
-  cols.forEach(col=>{
-    const m = State.meta[col];
-    const mid = (m.numMin + m.numMax) / 2;
-    const values = rows.map(r=>toNumber(r[col])).filter(n=>!Number.isNaN(n));
-    const n = values.length;
-    const card = document.createElement("div");
-    card.className = "card rspread-card";
-
-    if (!n){
-      card.innerHTML = `<div class="card__pad"><h3>${escHtml(col)}</h3><p class="muted-note">No responses for this question in the current selection.</p></div>`;
-      grid.appendChild(card); return;
-    }
-
-    const negN = values.filter(v=>v<mid).length, posN = values.filter(v=>v>mid).length, neuN = n-negN-posN;
-    const negPct = Math.round(negN/n*100), posPct = Math.round(posN/n*100);
-    const neuPct = Math.max(0, 100-negPct-posPct);
-    const halfNeu = neuPct/2;
-    const midLabel = round1(mid);
-
-    card.innerHTML = `<div class="card__pad">
-      <h3>${escHtml(col)}</h3>
-      <div class="csub">Rating spread &middot; ${m.numMin}&ndash;${m.numMax} scale &middot; n=${fmtInt.format(n)}</div>
-      <div class="rspread-row" aria-hidden="true">
-        <div class="rspread-row__left">
-          <span class="rspread-seg rspread-seg--neg" style="width:${negPct}%"></span>
-          <span class="rspread-seg rspread-seg--neuL" style="width:${halfNeu}%"></span>
-        </div>
-        <div class="rspread-row__center"></div>
-        <div class="rspread-row__right">
-          <span class="rspread-seg rspread-seg--neuR" style="width:${halfNeu}%"></span>
-          <span class="rspread-seg rspread-seg--pos" style="width:${posPct}%"></span>
-        </div>
-      </div>
-      <div class="rspread-legend">
-        <span><span class="sw" style="background:var(--neg)"></span>Low, below ${midLabel} <b>${negPct}%</b></span>
-        <span><span class="sw" style="background:var(--neu)"></span>Neutral, ${midLabel} <b>${neuPct}%</b></span>
-        <span><span class="sw" style="background:var(--pos)"></span>High, above ${midLabel} <b>${posPct}%</b></span>
-      </div>
-    </div>`;
-    grid.appendChild(card);
-  });
-}
-
-/* ============================================================================
-   7c. COMPARE GROUPS — average of a numeric metric per segment value, single
-   deep-purple series with a visible value+n label on every bar, plus a table
-   fallback (the DATAVIZ text/table-fallback rule for a canvas chart).
-   ============================================================================ */
-function renderCompare(rows){
-  const controls = document.querySelector(".compare-controls");
-  const sub = $("compareSub"), wrap = $("compareChartWrap"), tableWrap = $("compareTableWrap");
-  const metricSel = $("compareMetric"), segSel = $("compareSegment");
-  const numCols = colsOfType("numeric");
-  const segCols = compareSegmentCols();
-
-  if (!numCols.length || !segCols.length){
-    if (controls) controls.hidden = true;
-    sub.textContent = !numCols.length
-      ? "No numeric questions were detected to compare."
-      : "No suitable grouping (categorical) questions were detected.";
-    wrap.innerHTML = "";
-    tableWrap.hidden = true;
-    if (State.compareChart){ State.compareChart.destroy(); State.compareChart=null; }
-    return;
-  }
-  if (controls) controls.hidden = false;
-
-  if (!State.compare.metric || !numCols.includes(State.compare.metric)) State.compare.metric = numCols[0];
-  if (!State.compare.segment || !segCols.includes(State.compare.segment)) State.compare.segment = segCols[0];
-
-  metricSel.innerHTML = numCols.map(c=>`<option value="${escHtml(c)}">${escHtml(c)}</option>`).join("");
-  metricSel.value = State.compare.metric;
-  segSel.innerHTML = segCols.map(c=>`<option value="${escHtml(c)}">${escHtml(c)}</option>`).join("");
-  segSel.value = State.compare.segment;
-
-  const metric = State.compare.metric, segment = State.compare.segment;
-  const scale = niceScale(State.meta[metric].numMax);
-  const groups = computeGroupAverages(rows, metric, segment);
-  sub.textContent = `Average "${metric}" by ${segment} (scale of ${scale})`;
-
-  if (!groups.length){
-    wrap.innerHTML = `<p class="muted-note">No responses have both &ldquo;${escHtml(metric)}&rdquo; and &ldquo;${escHtml(segment)}&rdquo; answered in this selection.</p>`;
-    tableWrap.hidden = true;
-    if (State.compareChart){ State.compareChart.destroy(); State.compareChart=null; }
-    return;
-  }
-
-  if (typeof Chart==="undefined"){ wrap.innerHTML = `<p class="muted-note">Chart library failed to load.</p>`; tableWrap.hidden = true; return; }
-  configureChartDefaults();
-
-  const h = Math.max(160, groups.length*40 + 40);
-  wrap.style.height = h + "px";
-  wrap.innerHTML = `<canvas id="compareCanvas"></canvas>`;
-  const canvas = $("compareCanvas");
-  if (State.compareChart) State.compareChart.destroy();
-
-  const labels = groups.map(g=>g.group);
-  const data = groups.map(g=>g.avg);
-  const nCounts = groups.map(g=>g.n);
-  const maxVal = Math.max(...data, 1);
-
-  // Value + n label drawn just outside each bar in the ink text colour (never the bar's own
-  // colour), so it reads on any bar length -- the "visible value label" relief this palette needs.
-  const valueLabelPlugin = {
-    id: "compareValueLabels",
-    afterDatasetsDraw(chart){
-      const { ctx } = chart;
-      const meta = chart.getDatasetMeta(0);
-      ctx.save();
-      ctx.font = "600 12px " + getComputedStyle(document.body).fontFamily;
-      ctx.fillStyle = "#2a1430";
-      ctx.textBaseline = "middle";
-      ctx.textAlign = "left";
-      meta.data.forEach((bar,i)=>{ ctx.fillText(`${data[i]}  ·  n=${fmtInt.format(nCounts[i])}`, bar.x + 8, bar.y); });
-      ctx.restore();
-    }
-  };
-
-  State.compareChart = new Chart(canvas, {
-    type:"bar",
-    data:{ labels, datasets:[{ data, backgroundColor:"#4f2759", borderRadius:5, maxBarThickness:30 }] },
-    options:{
-      indexAxis:"y", responsive:true, maintainAspectRatio:false,
-      layout:{ padding:{ right:90 } },
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>{
-        const i=c.dataIndex; return ` ${data[i]} average (n=${fmtInt.format(nCounts[i])})`;
-      }}}},
-      scales:{ x:{ beginAtZero:true, suggestedMax:maxVal*1.3, grid:{color:"#f0ecf2"}, ticks:{precision:1} },
-               y:{ grid:{display:false}, ticks:{ crossAlign:"far", autoSkip:false } } }
-    },
-    plugins:[valueLabelPlugin]
-  });
-
-  $("compareTable").querySelector("tbody").innerHTML =
-    groups.map(g=>`<tr><td>${escHtml(g.group)}</td><td>${g.avg}</td><td>${fmtInt.format(g.n)}</td></tr>`).join("");
-  tableWrap.hidden = false;
-}
-
-/* ============================================================================
    8. OPEN FEEDBACK  (keywords + sentiment + representative comments)
    ============================================================================ */
 const STOP = new Set(("a an and the of to in for on at is are was were be been being it its this that these those i you he she we they them our your their my me us him her his do does did have has had will would could should can may might must not no yes so if then than as but or nor because while with without within about into over under again further just very too also more most some any all both each few other such only own same s t don ll re ve m d o there here what which who whom when where why how get got make made really quite lot much many thing things also even still im ive dont didnt cant wont thats theyre").split(/\s+/));
@@ -1303,17 +1097,8 @@ function renderFeedback(rows){
 
   const attrCol = State.filterCols[0] || null;
 
-  tcols.forEach((col,ci)=>{
+  tcols.forEach((col)=>{
     const values = rows.map(r=>r[col]).filter(v=>!isBlank(v));
-
-    // themes: bigrams (>=2) + top unigrams
-    const uni={}, bi={};
-    values.forEach(v=>{ const t=tokenize(v); t.forEach(w=>uni[w]=(uni[w]||0)+1);
-      for (let i=0;i<t.length-1;i++){ const b=t[i]+" "+t[i+1]; bi[b]=(bi[b]||0)+1; } });
-    const bigrams = Object.entries(bi).filter(([,c])=>c>=2).sort((a,b)=>b[1]-a[1]).slice(0,4);
-    const bwords = new Set(bigrams.flatMap(([p])=>p.split(" ")));
-    const unigrams = Object.entries(uni).sort((a,b)=>b[1]-a[1]).filter(([w])=>!bwords.has(w)).slice(0,10);
-    const themes = [...bigrams,...unigrams].sort((a,b)=>b[1]-a[1]).slice(0,12);
 
     // liked / could-be-better: drop lazy comments, split by sentiment, richer comments first
     const scored = values.map(v=>({text:clean(v),score:scoreSentiment(v),kw:tokenize(v).length})).filter(o=>!isLazyComment(o.text));
@@ -1324,12 +1109,7 @@ function renderFeedback(rows){
     const card = document.createElement("div"); card.className="card fb-card";
     card.innerHTML = `<div class="card__pad">
       <h3>${escHtml(col)}</h3>
-      <div class="csub">Recurring words · representative comments</div>
-      <div class="themes">${
-        themes.length ? themes.map(([w,c])=>`<button type="button" class="theme" data-word="${escHtml(w)}" data-drill="themeDrill-${ci}" aria-controls="themeDrill-${ci}" aria-expanded="false">${escHtml(w)}<span class="cnt">${c}</span></button>`).join("")
-                      : `<span class="muted-note">No recurring keywords for this selection.</span>`
-      }</div>
-      <div class="theme-drill" id="themeDrill-${ci}" data-col="${escHtml(col)}" hidden></div>
+      <div class="csub">Sentiment &amp; representative comments</div>
       <div class="mini-sent">
         <div class="mini-sent__bar">
           <span style="background:var(--pos);width:${s.pos/t*100}%"></span>
@@ -1361,38 +1141,6 @@ function quoteBlock(items, cls, lbl, rows, col, attrCol){
     return `<div class="quote"><p>“${escHtml(truncate(p.text,160))}”</p>
       <div class="qmeta"><span class="tag ${cls}"><span class="sw" style="background:currentColor"></span>${lbl}</span>${attr?`<span>${escHtml(attrCol)}: ${escHtml(attr)}</span>`:""}</div></div>`;
   }).join("");
-}
-
-/* Theme chip drill-down: clicking a recurring-theme button reveals the actual comments (from that
-   column, in the current filtered view) whose text contains the theme word/phrase; clicking the
-   same button again collapses it. One open theme per card at a time (accordion). */
-const THEME_DRILL_CAP = 25;
-function handleThemeClick(e){
-  const btn = e.target.closest(".theme");
-  if (!btn || btn.tagName !== "BUTTON") return;
-  const drill = document.getElementById(btn.dataset.drill);
-  if (!drill) return;
-  const card = btn.closest(".fb-card");
-  const wasOpen = btn.getAttribute("aria-expanded") === "true";
-
-  if (card) card.querySelectorAll(".theme").forEach(b=>b.setAttribute("aria-expanded","false"));
-  if (wasOpen){ drill.hidden = true; drill.innerHTML = ""; return; }
-
-  const col = drill.dataset.col;
-  const word = btn.dataset.word;
-  // Whole-word match (word boundary) so the "art" theme does not also pull in "smart".
-  const wordRe = new RegExp("\\b" + word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i");
-  const matches = filteredRows().map(r=>r[col]).filter(v=>!isBlank(v))
-    .filter(v=>wordRe.test(clean(v)));
-  const shown = matches.slice(0, THEME_DRILL_CAP);
-
-  drill.innerHTML = `<div class="theme-drill__label">Comments mentioning &ldquo;${escHtml(word)}&rdquo; (${fmtInt.format(matches.length)})</div>` +
-    (shown.length
-      ? `<div class="quotes">${shown.map(v=>`<div class="quote"><p>“${escHtml(truncate(clean(v),220))}”</p></div>`).join("")}</div>`
-      : `<p class="muted-note">No matching comments found.</p>`) +
-    (matches.length > THEME_DRILL_CAP ? `<div class="theme-drill__more">+ ${fmtInt.format(matches.length - THEME_DRILL_CAP)} more not shown.</div>` : ``);
-  drill.hidden = false;
-  btn.setAttribute("aria-expanded","true");
 }
 
 /* ============================================================================
@@ -1506,6 +1254,23 @@ function aiMaybeRunForCurrentReport(){
   aiGenerateVerdict(filteredRows(), { auto:true });
 }
 
+// If an upload (a dropped/selected File) OR the sample was requested before a key + consent were in
+// place, it was stashed (State.pendingFile / State.pendingSample) and the upload screen is showing the
+// gate message. Once the user becomes eligible, run it through the normal path automatically. Both
+// entry points re-check eligibility themselves, so this is safe to call whenever eligibility changes.
+function processPendingInputIfAny(){
+  if (State.pendingFile){
+    const file = State.pendingFile;
+    State.pendingFile = null;
+    handleFile(file);
+    return;
+  }
+  if (State.pendingSample){
+    State.pendingSample = false;
+    loadSample();
+  }
+}
+
 function aiSaveKey(){
   const val = clean($("aiKey").value);
   if (!val){ aiSetKeyState("Paste your OpenAI key first, then save.", true); return; }
@@ -1514,6 +1279,7 @@ function aiSaveKey(){
   $("aiKey").value = "";
   aiSetKeyState("Key saved in this browser.");
   aiUpdateVerdictControls();
+  processPendingInputIfAny();
   aiMaybeRunForCurrentReport();
 }
 function aiForgetKey(){
@@ -1627,25 +1393,59 @@ function renderAiVerdict(data){
   $("actionList").innerHTML = actions.length ? actions.map(a=>`<li>${escHtml(a)}</li>`).join("") : `<li>No specific actions were returned.</li>`;
 }
 
+/* Live (non-hydrated) reports are gated behind an OpenAI key, so #verdictBox always reflects the AI
+   verdict's current state: the result, a "generating" placeholder, or an error with a retry control.
+   Never falls back to the heuristic verdict (that fallback is reserved for hydrated exports). */
+function renderLiveVerdictBox(){
+  if (State.hydrated) return;
+  if (State.aiVerdict){ renderAiVerdict(State.aiVerdict); return; }
+  if (State.aiVerdictErrorMsg){ renderVerdictError(State.aiVerdictErrorMsg); return; }
+  renderVerdictGenerating();
+}
+function renderVerdictGenerating(){
+  $("verdictBox").innerHTML =
+    `<h3>Generating the verdict with AI&hellip;</h3><p class="muted-note">This updates automatically once OpenAI responds.</p>`;
+  $("dataList").innerHTML = `<li class="muted-note">Not available yet.</li>`;
+  $("actionList").innerHTML = `<li class="muted-note">Not available yet.</li>`;
+}
+function renderVerdictError(msg){
+  $("verdictBox").innerHTML =
+    `<h3>Couldn't generate the AI verdict</h3><p>${escHtml(msg)}</p>` +
+    `<button class="btn btn--ghost btn--sm" id="aiVerdictRetry" type="button">Retry</button>`;
+  $("dataList").innerHTML = `<li class="muted-note">Not available until the AI verdict is generated.</li>`;
+  $("actionList").innerHTML = `<li class="muted-note">Not available until the AI verdict is generated.</li>`;
+  const retryBtn = $("aiVerdictRetry");
+  if (retryBtn) retryBtn.addEventListener("click", ()=>aiGenerateVerdict(filteredRows(), { auto:false }));
+}
+
 function aiHandleVerdictHttpError(status){
   let msg;
-  if (status===401) msg = "That key was not accepted, showing the standard verdict instead.";
-  else if (status===429) msg = "OpenAI is busy or over its limit, showing the standard verdict instead.";
-  else if (status>=500) msg = "OpenAI had a problem, showing the standard verdict instead.";
-  else msg = "OpenAI could not process that request, showing the standard verdict instead.";
+  if (status===401) msg = "That key was not accepted. Check it and try again.";
+  else if (status===429) msg = "OpenAI is busy or over its limit. Try again in a moment.";
+  else if (status>=500) msg = "OpenAI had a problem. Try again in a moment.";
+  else msg = "OpenAI could not process that request.";
   aiSetVerdictStatus(msg, true);
+  State.aiVerdictErrorMsg = msg;
+  renderLiveVerdictBox();
 }
 
 /* Generates (or regenerates) the AI verdict for the given filtered rows. Called automatically once
-   per uploaded file (opts.auto) and on demand via the "Update with AI" control. On any failure the
-   heuristic verdict already rendered by renderHeuristicVerdict() is left in place untouched. */
+   per uploaded file (opts.auto), on demand via the "Update with AI" control, and via the Retry
+   control shown on a failed verdict. Live reports have no fallback verdict: on any failure
+   #verdictBox shows the error and a Retry control instead. */
 async function aiGenerateVerdict(rows, opts={}){
   if (!aiVerdictEligible()) return;
   const key = aiGetKey();
   if (!key) return;
 
   const { comments, total, truncated } = aiBuildComments();
-  if (!comments.length && !opts.auto){ aiSetVerdictStatus("No open-text comments were found to ground an AI verdict.", true); return; }
+  if (!comments.length && !opts.auto){
+    const msg = "No open-text comments were found to ground an AI verdict.";
+    aiSetVerdictStatus(msg, true);
+    State.aiVerdictErrorMsg = msg;
+    renderLiveVerdictBox();
+    return;
+  }
   const stats = aiBuildStats(rows);
 
   if (aiVerdictController) aiVerdictController.abort();
@@ -1657,6 +1457,8 @@ async function aiGenerateVerdict(rows, opts={}){
   const refreshBtn = $("aiVerdictRefresh");
   if (refreshBtn) refreshBtn.disabled = true;
   aiSetVerdictStatus(opts.auto ? "Writing an AI verdict from your data…" : "Updating the AI verdict…");
+  State.aiVerdictErrorMsg = null;
+  renderLiveVerdictBox(); // shows the "generating" placeholder immediately, including on a retry click
 
   // The organiser's purpose (if given) is CONTEXT only: it focuses the verdict, it is never data.
   const purposeLine = State.purpose ? `Survey purpose, described by the organiser: "${State.purpose}". Use this only to focus the verdict; do not treat it as data or invent from it.\n` : "";
@@ -1691,7 +1493,10 @@ async function aiGenerateVerdict(rows, opts={}){
     if (gen !== State.aiVerdictGen) return;
 
     if (!parsed || typeof parsed!=="object" || !clean(parsed.heading)){
-      aiSetVerdictStatus("The AI's reply couldn't be used, showing the standard verdict instead.", true);
+      const msg = "The AI's reply couldn't be used. Try again.";
+      aiSetVerdictStatus(msg, true);
+      State.aiVerdictErrorMsg = msg;
+      renderLiveVerdictBox();
       return;
     }
 
@@ -1703,6 +1508,7 @@ async function aiGenerateVerdict(rows, opts={}){
       supports: Array.isArray(parsed.supports) ? parsed.supports.map(clean).filter(Boolean).slice(0,6) : [],
       actions: Array.isArray(parsed.actions) ? parsed.actions.map(clean).filter(Boolean).slice(0,5) : []
     };
+    State.aiVerdictErrorMsg = null;
     renderAiVerdict(State.aiVerdict);
     aiSetVerdictStatus(truncated
       ? `AI verdict ready (based on the first ${fmtInt.format(AI_MAX_COMMENTS)} of ${fmtInt.format(total)} comments).`
@@ -1710,11 +1516,15 @@ async function aiGenerateVerdict(rows, opts={}){
 
   }catch(err){
     if (gen !== State.aiVerdictGen) return;
+    let msg;
     if (err && err.name==="AbortError"){
-      aiSetVerdictStatus(timedOut ? "That took too long, showing the standard verdict instead." : "AI verdict cancelled.", true);
+      msg = timedOut ? "That took too long. Try again." : "AI verdict cancelled. Try again.";
     } else {
-      aiSetVerdictStatus("You appear to be offline, so the AI verdict couldn't be generated.", true);
+      msg = "You appear to be offline, so the AI verdict couldn't be generated. Try again once you're back online.";
     }
+    aiSetVerdictStatus(msg, true);
+    State.aiVerdictErrorMsg = msg;
+    renderLiveVerdictBox();
   }finally{
     clearTimeout(timer);
     if (gen === State.aiVerdictGen) aiVerdictController = null;
@@ -1726,7 +1536,7 @@ function aiWire(){
   $("aiKeySave").addEventListener("click", aiSaveKey);
   $("aiKeyForget").addEventListener("click", aiForgetKey);
   $("aiConsent").checked = aiGetConsent();
-  $("aiConsent").addEventListener("change", ()=>{ aiSetConsent($("aiConsent").checked); aiUpdateVerdictControls(); aiMaybeRunForCurrentReport(); });
+  $("aiConsent").addEventListener("change", ()=>{ aiSetConsent($("aiConsent").checked); aiUpdateVerdictControls(); processPendingInputIfAny(); aiMaybeRunForCurrentReport(); });
   const refreshBtn = $("aiVerdictRefresh");
   if (refreshBtn) refreshBtn.addEventListener("click", ()=>aiGenerateVerdict(filteredRows(), { auto:false }));
   aiSetKeyState();
@@ -1738,7 +1548,6 @@ function aiWire(){
    ============================================================================ */
 function clearData(){
   State.charts.forEach(c=>c.destroy()); State.charts=[];
-  if (State.compareChart){ State.compareChart.destroy(); State.compareChart=null; }
   $("report").hidden = true; $("uploadView").hidden = false;
   $("fileChip").classList.remove("is-on"); $("fileInput").value="";
   window.scrollTo({top:0, behavior: REDUCED?"auto":"smooth"});
@@ -1767,6 +1576,16 @@ function toast(msg, err){ const t=$("toast"); t.textContent=msg; t.classList.tog
    12. SAMPLE DATA
    ============================================================================ */
 function loadSample(){
+  // The sample runs the same gated analysis path as a real upload: without an OpenAI key + consent it
+  // is stashed and the upload screen explains why, so it never renders a report stuck on "Generating…".
+  if (!aiVerdictEligible()){
+    State.pendingSample = true;
+    State.pendingFile = null;
+    showUploadGateMessage();
+    return;
+  }
+  State.pendingSample = false;
+  hideUploadGateMessage();
   const years=["Year 7","Year 8","Year 9","Year 10","Year 11","Year 12"];
   const faculties=["Commerce","Design","HPE","I&S","Lang & Lit","Language Acquisition","Mathematics","Music","Science","The Arts"];
   const campuses=["Elsternwick","St Kilda Road","Glen Waverley"];
@@ -1834,10 +1653,10 @@ function hydrateFromExport(data){
   State.filterCols.forEach(c => State.filters[c] = new Set());
   State.title = deriveTitle(data.fileName || "Survey results");
   State.purpose = clean(data.purpose || "");
-  State.compare = { metric: null, segment: null };
   // A baked verdict means the recipient sees the AI verdict with no key and no OpenAI call. If it is
   // absent, the heuristic verdict shows instead. Either way, hydrated exports never touch the network.
   State.aiVerdict = (data.aiVerdict && typeof data.aiVerdict === "object") ? data.aiVerdict : null;
+  State.aiVerdictErrorMsg = null;
   State.hydrated = true;
   boot(data.fileName || "insight-report.html");
 }
@@ -1918,10 +1737,6 @@ function init(){
 
   $("exportHtml").addEventListener("click", exportInteractiveHtml);
   $("exportPdf").addEventListener("click", ()=>window.print());
-
-  $("compareMetric").addEventListener("change", ()=>{ State.compare.metric = $("compareMetric").value; renderCompare(filteredRows()); });
-  $("compareSegment").addEventListener("change", ()=>{ State.compare.segment = $("compareSegment").value; renderCompare(filteredRows()); });
-  $("feedbackGrid").addEventListener("click", handleThemeClick);
 
   aiWire();
 
