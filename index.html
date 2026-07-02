@@ -215,6 +215,50 @@ main{ padding-bottom:4rem; }
 .quotes-label{ font-size:.78rem; font-weight:700; letter-spacing:.02em; color:var(--ink); margin-top:1.2rem; }
 .quotes-label + .quotes{ margin-top:.6rem; }
 
+/* ---- Theme drill-down (recurring-theme chips become disclosure buttons) ---- */
+button.theme{ border:1px solid var(--line); text-align:left; }
+.theme[aria-expanded="true"]{ background:var(--lilac); border-color:var(--brand-300); }
+.theme-drill[hidden]{ display:none; }
+.theme-drill{ margin-top:.9rem; padding-top:.9rem; border-top:1px dashed var(--line); }
+.theme-drill__label{ font-size:.78rem; font-weight:700; color:var(--ink); margin-bottom:.6rem; }
+.theme-drill .quotes{ margin-top:0; }
+.theme-drill__more{ margin-top:.5rem; font-size:.8rem; color:var(--muted); font-style:italic; }
+
+/* ---- Key findings strip (text-forward, not hero numbers) ---- */
+.findings{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1rem; }
+.finding{ background:var(--lilac-25); border:1px solid var(--line); border-radius:var(--r-md); padding:1.1rem 1.25rem; font-size:.92rem; color:var(--ink-2); line-height:1.55; }
+.finding .hl-gold{ color:var(--gold-ink); font-weight:700; }
+.finding .hl-purple{ color:var(--brand); font-weight:700; }
+
+/* ---- Rating spread (diverging low/neutral/high) ---- */
+.rspread-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:1rem; }
+.rspread-card h3{ font-size:1rem; font-weight:700; color:var(--ink); }
+.rspread-card .csub{ font-size:.82rem; color:var(--gold-ink); font-weight:600; margin-top:.15rem; }
+.rspread-row{ display:flex; align-items:stretch; height:26px; margin-top:1.1rem; border-radius:6px; overflow:hidden; background:var(--line); position:relative; }
+.rspread-row__left{ width:50%; display:flex; justify-content:flex-end; }
+.rspread-row__right{ width:50%; display:flex; justify-content:flex-start; }
+.rspread-row__center{ position:absolute; left:50%; top:0; bottom:0; width:1px; background:var(--line-strong); }
+.rspread-seg{ height:100%; }
+.rspread-seg--neg{ background:var(--neg); }
+.rspread-seg--pos{ background:var(--pos); }
+.rspread-seg--neuL,.rspread-seg--neuR{ background:var(--neu); }
+.rspread-legend{ display:flex; flex-wrap:wrap; gap:.4rem 1.1rem; margin-top:.65rem; font-size:.78rem; color:var(--muted); }
+.rspread-legend .sw{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:.4rem; vertical-align:middle; }
+.rspread-legend b{ color:var(--ink-2); font-variant-numeric:tabular-nums; }
+
+/* ---- Compare groups ---- */
+.compare-controls{ display:flex; flex-wrap:wrap; gap:1rem 1.4rem; }
+.compare-field{ display:flex; flex-direction:column; gap:.35rem; }
+.compare-field label{ font-size:.78rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); }
+.compare-field select{ font-family:inherit; font-size:.92rem; font-weight:600; color:var(--ink); background:#fff; border:1px solid var(--line-strong); border-radius:var(--r-sm); padding:.5rem .7rem; min-width:200px; }
+.compare-card .csub{ font-size:.82rem; color:var(--gold-ink); font-weight:600; margin-top:1.1rem; }
+.chart-table{ margin-top:1rem; }
+.chart-table summary{ font-size:.82rem; font-weight:700; color:var(--brand); cursor:pointer; width:max-content; }
+.chart-table summary:hover{ color:var(--brand-600); }
+.chart-table table{ width:100%; border-collapse:collapse; margin-top:.7rem; font-size:.88rem; }
+.chart-table th,.chart-table td{ text-align:left; padding:.5rem .7rem; border-bottom:1px solid var(--line); color:var(--ink-2); }
+.chart-table th{ color:var(--muted); font-weight:700; font-size:.76rem; text-transform:uppercase; letter-spacing:.05em; }
+
 /* ---- Verdict & actions ---- */
 .verdict{ background:var(--verdict-bg); border:1px solid var(--verdict-border); border-radius:var(--r-md); padding:clamp(1.3rem,2.6vw,1.8rem); }
 .verdict h3{ font-size:1.08rem; font-weight:700; color:var(--brand); }
@@ -264,6 +308,7 @@ footer b{ color:var(--brand); }
   .filter-row__label{ min-width:100%; }
   .aikeybar__inner{ flex-direction:column; align-items:stretch; }
   .aikeybar__inner input[type="password"]{ max-width:none; }
+  .compare-field select{ min-width:0; width:100%; }
 }
 
 /* ---- Print (Save as PDF) ---- */
@@ -377,6 +422,12 @@ footer b{ color:var(--brand); }
   </section>
 
   <main class="wrap">
+    <!-- Key findings -->
+    <section class="section" id="secFindings">
+      <div class="section__head"><span class="eyebrow muted">Key findings</span></div>
+      <div class="findings" id="findingsRow"></div>
+    </section>
+
     <!-- KPIs -->
     <section class="section" id="secKpi">
       <div class="section__head"><span class="eyebrow muted">At a glance</span></div>
@@ -390,6 +441,41 @@ footer b{ color:var(--brand); }
         <span class="section__badge" id="chartsBadge"></span>
       </div>
       <div class="chart-grid" id="chartGrid"></div>
+    </section>
+
+    <!-- Rating spread -->
+    <section class="section" id="secRatingSpread">
+      <div class="section__head">
+        <span class="eyebrow muted">Rating spread</span>
+        <span class="section__badge" id="ratingSpreadBadge"></span>
+      </div>
+      <div class="rspread-grid" id="ratingSpreadGrid"></div>
+    </section>
+
+    <!-- Compare groups -->
+    <section class="section" id="secCompare">
+      <div class="section__head"><span class="eyebrow muted">Compare groups</span></div>
+      <div class="card compare-card"><div class="card__pad">
+        <div class="compare-controls">
+          <div class="compare-field">
+            <label for="compareMetric">Metric</label>
+            <select id="compareMetric"></select>
+          </div>
+          <div class="compare-field">
+            <label for="compareSegment">Segment</label>
+            <select id="compareSegment"></select>
+          </div>
+        </div>
+        <div class="csub" id="compareSub"></div>
+        <div class="chart-wrap" id="compareChartWrap"><canvas id="compareCanvas"></canvas></div>
+        <details class="chart-table" id="compareTableWrap" hidden>
+          <summary>View as table</summary>
+          <table id="compareTable">
+            <thead><tr><th scope="col">Group</th><th scope="col">Average</th><th scope="col">n</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </details>
+      </div></div>
     </section>
 
     <!-- Open feedback -->
@@ -444,7 +530,9 @@ const State = {
   aiVerdict: null,      // last successful AI verdict object {heading,paragraph,supports,actions} (baked into exports)
   hydrated: false,      // true when booted from an exported report (no key bar, no AI calls)
   aiAutoVerdictDone: false, // whether the auto AI verdict has been attempted for the current file
-  aiVerdictGen: 0            // bumped on every render(); guards against stale async AI responses
+  aiVerdictGen: 0,            // bumped on every render(); guards against stale async AI responses
+  compare: { metric: null, segment: null }, // Compare-groups panel selections (column names)
+  compareChart: null          // the Compare-groups Chart.js instance (destroyed on re-render)
 };
 
 const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -499,6 +587,7 @@ function ingest(matrix, name){
   State.purpose = purposeEl ? clean(purposeEl.value) : "";
   State.aiVerdict = null;
   State.hydrated = false;
+  State.compare = { metric: null, segment: null };
   analyse();
   chooseFilterCols();
   boot(name);
@@ -609,6 +698,37 @@ function analyse(){
 
 const colsOfType = (t) => State.headers.filter(h => State.meta[h].type===t);
 const lowCard = (h,min=2,max=15) => { const m=State.meta[h]; return m.distinctCount>=min && m.distinctCount<=max; };
+
+/* low-cardinality categorical columns usable as a "Compare groups" segment */
+function compareSegmentCols(){
+  return State.headers.filter(h=>State.meta[h].type==="categorical" && lowCard(h));
+}
+function defaultCompareSegment(){ return compareSegmentCols()[0] || null; }
+
+/* average `metricCol` for each distinct value of `segmentCol`, sorted highest average first.
+   Rows with a non-numeric metric are skipped; blank segment values are grouped as "(blank)". */
+function computeGroupAverages(rows, metricCol, segmentCol){
+  const groups = {};
+  rows.forEach(r=>{
+    const val = toNumber(r[metricCol]);
+    if (Number.isNaN(val)) return;
+    let seg = clean(r[segmentCol]); if (seg==="") seg = "(blank)";
+    (groups[seg] || (groups[seg]=[])).push(val);
+  });
+  return Object.entries(groups).map(([group,vals])=>({ group, avg:round1(mean(vals)), n:vals.length }))
+    .sort((a,b)=>b.avg-a.avg);
+}
+
+/* numeric columns with a small integer rating scale (e.g. 1-5), used for the diverging rating-spread */
+function ratingCols(){
+  return colsOfType("numeric").filter(h=>{
+    const m = State.meta[h];
+    if (m.numMin==null || m.numMax==null) return false;
+    if (!Number.isInteger(m.numMin) || !Number.isInteger(m.numMax)) return false;
+    if (m.numMax - m.numMin < 1 || m.numMax - m.numMin > 9 || m.numMax > 10) return false;
+    return lowCard(h, 2, 9);
+  });
+}
 
 /* columns worth charting (one horizontal bar chart each) */
 function chartableCols(){
@@ -739,7 +859,10 @@ function render(first){
   const rows = filteredRows();
   renderShowing(rows);
   renderKPIs(rows);
+  renderKeyFindings(rows);
   renderCharts(rows);
+  renderRatingSpread(rows);
+  renderCompare(rows);
   renderFeedback(rows);
   renderHeuristicVerdict(rows); // always render the fallback verdict first, synchronously
   // A hydrated export with a baked verdict shows it as-is (no key, no network); otherwise the
@@ -830,6 +953,62 @@ function kpiCard(value, suffix, label, gold, count){
   </div>`;
 }
 function niceScale(max){ if (max==null) return "5"; if (max<=5) return "5"; if (max<=7) return "7"; if (max<=10) return "10"; if (max<=100) return "100"; return String(Math.ceil(max)); }
+
+/* ============================================================================
+   6b. KEY FINDINGS  (auto-derived, text-forward sentences — not hero numbers)
+   ============================================================================ */
+function renderKeyFindings(rows){
+  const findings = [];
+
+  // biggest gap between segment groups, using the same averaging the Compare panel uses
+  const gapMetric = colsOfType("numeric")[0];
+  const gapSegment = defaultCompareSegment();
+  if (gapMetric && gapSegment){
+    const groups = computeGroupAverages(rows, gapMetric, gapSegment);
+    if (groups.length>=2){
+      const top = groups[0], bottom = groups[groups.length-1];
+      const gap = round1(top.avg - bottom.avg);
+      if (gap>0){
+        findings.push(`The biggest gap between <span class="hl-purple">${escHtml(gapSegment)}</span> groups is on <span class="hl-purple">${escHtml(gapMetric)}</span>: <span class="hl-gold">${escHtml(top.group)}</span> averages ${top.avg}, ${gap} points above <span class="hl-gold">${escHtml(bottom.group)}</span> (${bottom.avg}).`);
+      }
+    }
+  }
+
+  // strongest / weakest rated areas
+  const numCols = colsOfType("numeric");
+  if (numCols.length){
+    const stats = numCols.map(c=>{ const v=rows.map(r=>toNumber(r[c])).filter(n=>!Number.isNaN(n));
+      return { col:c, avg:round1(mean(v)), scale:+niceScale(State.meta[c].numMax) }; }).filter(s=>!Number.isNaN(s.avg));
+    if (stats.length){
+      const high = [...stats].sort((a,b)=>b.avg-a.avg)[0];
+      const low = [...stats].sort((a,b)=>a.avg-b.avg)[0];
+      findings.push(`<span class="hl-purple">${escHtml(high.col)}</span> is the strongest rated area, averaging <span class="hl-gold">${high.avg}/${high.scale}</span>.`);
+      if (low.col!==high.col){
+        findings.push(`<span class="hl-purple">${escHtml(low.col)}</span> needs the most attention, averaging <span class="hl-gold">${low.avg}/${low.scale}</span>.`);
+      }
+    }
+  }
+
+  // overall positive open-text sentiment
+  const tcol = colsOfType("text")[0];
+  if (tcol){
+    const values = rows.map(r=>r[tcol]).filter(v=>!isBlank(v));
+    const s = sentiment(values); const t = s.pos+s.neu+s.neg;
+    if (t) findings.push(`<span class="hl-gold">${Math.round(s.pos/t*100)}%</span> of open-text feedback reads positive.`);
+  }
+
+  // average completion
+  const anCols = State.headers.filter(h=>State.meta[h].type!=="id");
+  const cols = anCols.length; let filled=0;
+  for (const r of rows) for (const h of anCols) if (!isBlank(r[h])) filled++;
+  const completion = (rows.length&&cols) ? Math.round(filled/(rows.length*cols)*100) : 100;
+  findings.push(`Average completion sits at <span class="hl-gold">${completion}%</span> across ${fmtInt.format(rows.length)} responses.`);
+
+  const picked = findings.slice(0,4);
+  $("findingsRow").innerHTML = picked.length
+    ? picked.map(f=>`<div class="finding">${f}</div>`).join("")
+    : `<p class="muted-note">Not enough data in this selection to derive key findings.</p>`;
+}
 
 /* ============================================================================
    7. CHARTS — one horizontal bar per question
@@ -934,6 +1113,156 @@ function configureChartDefaults(){
 }
 
 /* ============================================================================
+   7b. RATING SPREAD — diverging low/neutral/high bar per rating-scale column.
+   Plain HTML/CSS (not canvas): the % legend beneath each bar IS the text
+   fallback, and the left/right position + colour + label together avoid
+   relying on colour alone (colourblind-safe secondary encoding).
+   ============================================================================ */
+function renderRatingSpread(rows){
+  const grid = $("ratingSpreadGrid"); grid.innerHTML = "";
+  const cols = ratingCols();
+  $("ratingSpreadBadge").textContent = `${cols.length} question${cols.length!==1?"s":""}`;
+  if (!cols.length){ grid.innerHTML = `<p class="muted-note">No rating-scale questions (e.g. 1-5) were detected to chart.</p>`; return; }
+
+  cols.forEach(col=>{
+    const m = State.meta[col];
+    const mid = (m.numMin + m.numMax) / 2;
+    const values = rows.map(r=>toNumber(r[col])).filter(n=>!Number.isNaN(n));
+    const n = values.length;
+    const card = document.createElement("div");
+    card.className = "card rspread-card";
+
+    if (!n){
+      card.innerHTML = `<div class="card__pad"><h3>${escHtml(col)}</h3><p class="muted-note">No responses for this question in the current selection.</p></div>`;
+      grid.appendChild(card); return;
+    }
+
+    const negN = values.filter(v=>v<mid).length, posN = values.filter(v=>v>mid).length, neuN = n-negN-posN;
+    const negPct = Math.round(negN/n*100), posPct = Math.round(posN/n*100);
+    const neuPct = Math.max(0, 100-negPct-posPct);
+    const halfNeu = neuPct/2;
+    const midLabel = round1(mid);
+
+    card.innerHTML = `<div class="card__pad">
+      <h3>${escHtml(col)}</h3>
+      <div class="csub">Rating spread &middot; ${m.numMin}&ndash;${m.numMax} scale &middot; n=${fmtInt.format(n)}</div>
+      <div class="rspread-row" aria-hidden="true">
+        <div class="rspread-row__left">
+          <span class="rspread-seg rspread-seg--neg" style="width:${negPct}%"></span>
+          <span class="rspread-seg rspread-seg--neuL" style="width:${halfNeu}%"></span>
+        </div>
+        <div class="rspread-row__center"></div>
+        <div class="rspread-row__right">
+          <span class="rspread-seg rspread-seg--neuR" style="width:${halfNeu}%"></span>
+          <span class="rspread-seg rspread-seg--pos" style="width:${posPct}%"></span>
+        </div>
+      </div>
+      <div class="rspread-legend">
+        <span><span class="sw" style="background:var(--neg)"></span>Low, below ${midLabel} <b>${negPct}%</b></span>
+        <span><span class="sw" style="background:var(--neu)"></span>Neutral, ${midLabel} <b>${neuPct}%</b></span>
+        <span><span class="sw" style="background:var(--pos)"></span>High, above ${midLabel} <b>${posPct}%</b></span>
+      </div>
+    </div>`;
+    grid.appendChild(card);
+  });
+}
+
+/* ============================================================================
+   7c. COMPARE GROUPS — average of a numeric metric per segment value, single
+   deep-purple series with a visible value+n label on every bar, plus a table
+   fallback (the DATAVIZ text/table-fallback rule for a canvas chart).
+   ============================================================================ */
+function renderCompare(rows){
+  const controls = document.querySelector(".compare-controls");
+  const sub = $("compareSub"), wrap = $("compareChartWrap"), tableWrap = $("compareTableWrap");
+  const metricSel = $("compareMetric"), segSel = $("compareSegment");
+  const numCols = colsOfType("numeric");
+  const segCols = compareSegmentCols();
+
+  if (!numCols.length || !segCols.length){
+    if (controls) controls.hidden = true;
+    sub.textContent = !numCols.length
+      ? "No numeric questions were detected to compare."
+      : "No suitable grouping (categorical) questions were detected.";
+    wrap.innerHTML = "";
+    tableWrap.hidden = true;
+    if (State.compareChart){ State.compareChart.destroy(); State.compareChart=null; }
+    return;
+  }
+  if (controls) controls.hidden = false;
+
+  if (!State.compare.metric || !numCols.includes(State.compare.metric)) State.compare.metric = numCols[0];
+  if (!State.compare.segment || !segCols.includes(State.compare.segment)) State.compare.segment = segCols[0];
+
+  metricSel.innerHTML = numCols.map(c=>`<option value="${escHtml(c)}">${escHtml(c)}</option>`).join("");
+  metricSel.value = State.compare.metric;
+  segSel.innerHTML = segCols.map(c=>`<option value="${escHtml(c)}">${escHtml(c)}</option>`).join("");
+  segSel.value = State.compare.segment;
+
+  const metric = State.compare.metric, segment = State.compare.segment;
+  const scale = niceScale(State.meta[metric].numMax);
+  const groups = computeGroupAverages(rows, metric, segment);
+  sub.textContent = `Average "${metric}" by ${segment} (scale of ${scale})`;
+
+  if (!groups.length){
+    wrap.innerHTML = `<p class="muted-note">No responses have both &ldquo;${escHtml(metric)}&rdquo; and &ldquo;${escHtml(segment)}&rdquo; answered in this selection.</p>`;
+    tableWrap.hidden = true;
+    if (State.compareChart){ State.compareChart.destroy(); State.compareChart=null; }
+    return;
+  }
+
+  if (typeof Chart==="undefined"){ wrap.innerHTML = `<p class="muted-note">Chart library failed to load.</p>`; tableWrap.hidden = true; return; }
+  configureChartDefaults();
+
+  const h = Math.max(160, groups.length*40 + 40);
+  wrap.style.height = h + "px";
+  wrap.innerHTML = `<canvas id="compareCanvas"></canvas>`;
+  const canvas = $("compareCanvas");
+  if (State.compareChart) State.compareChart.destroy();
+
+  const labels = groups.map(g=>g.group);
+  const data = groups.map(g=>g.avg);
+  const nCounts = groups.map(g=>g.n);
+  const maxVal = Math.max(...data, 1);
+
+  // Value + n label drawn just outside each bar in the ink text colour (never the bar's own
+  // colour), so it reads on any bar length -- the "visible value label" relief this palette needs.
+  const valueLabelPlugin = {
+    id: "compareValueLabels",
+    afterDatasetsDraw(chart){
+      const { ctx } = chart;
+      const meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = "600 12px " + getComputedStyle(document.body).fontFamily;
+      ctx.fillStyle = "#2a1430";
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "left";
+      meta.data.forEach((bar,i)=>{ ctx.fillText(`${data[i]}  ·  n=${fmtInt.format(nCounts[i])}`, bar.x + 8, bar.y); });
+      ctx.restore();
+    }
+  };
+
+  State.compareChart = new Chart(canvas, {
+    type:"bar",
+    data:{ labels, datasets:[{ data, backgroundColor:"#4f2759", borderRadius:5, maxBarThickness:30 }] },
+    options:{
+      indexAxis:"y", responsive:true, maintainAspectRatio:false,
+      layout:{ padding:{ right:90 } },
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>{
+        const i=c.dataIndex; return ` ${data[i]} average (n=${fmtInt.format(nCounts[i])})`;
+      }}}},
+      scales:{ x:{ beginAtZero:true, suggestedMax:maxVal*1.3, grid:{color:"#f0ecf2"}, ticks:{precision:1} },
+               y:{ grid:{display:false}, ticks:{ crossAlign:"far", autoSkip:false } } }
+    },
+    plugins:[valueLabelPlugin]
+  });
+
+  $("compareTable").querySelector("tbody").innerHTML =
+    groups.map(g=>`<tr><td>${escHtml(g.group)}</td><td>${g.avg}</td><td>${fmtInt.format(g.n)}</td></tr>`).join("");
+  tableWrap.hidden = false;
+}
+
+/* ============================================================================
    8. OPEN FEEDBACK  (keywords + sentiment + representative comments)
    ============================================================================ */
 const STOP = new Set(("a an and the of to in for on at is are was were be been being it its this that these those i you he she we they them our your their my me us him her his do does did have has had will would could should can may might must not no yes so if then than as but or nor because while with without within about into over under again further just very too also more most some any all both each few other such only own same s t don ll re ve m d o there here what which who whom when where why how get got make made really quite lot much many thing things also even still im ive dont didnt cant wont thats theyre").split(/\s+/));
@@ -974,7 +1303,7 @@ function renderFeedback(rows){
 
   const attrCol = State.filterCols[0] || null;
 
-  tcols.forEach(col=>{
+  tcols.forEach((col,ci)=>{
     const values = rows.map(r=>r[col]).filter(v=>!isBlank(v));
 
     // themes: bigrams (>=2) + top unigrams
@@ -997,9 +1326,10 @@ function renderFeedback(rows){
       <h3>${escHtml(col)}</h3>
       <div class="csub">Recurring words · representative comments</div>
       <div class="themes">${
-        themes.length ? themes.map(([w,c])=>`<span class="theme">${escHtml(w)}<span class="cnt">${c}</span></span>`).join("")
+        themes.length ? themes.map(([w,c])=>`<button type="button" class="theme" data-word="${escHtml(w)}" data-drill="themeDrill-${ci}" aria-controls="themeDrill-${ci}" aria-expanded="false">${escHtml(w)}<span class="cnt">${c}</span></button>`).join("")
                       : `<span class="muted-note">No recurring keywords for this selection.</span>`
       }</div>
+      <div class="theme-drill" id="themeDrill-${ci}" data-col="${escHtml(col)}" hidden></div>
       <div class="mini-sent">
         <div class="mini-sent__bar">
           <span style="background:var(--pos);width:${s.pos/t*100}%"></span>
@@ -1031,6 +1361,38 @@ function quoteBlock(items, cls, lbl, rows, col, attrCol){
     return `<div class="quote"><p>“${escHtml(truncate(p.text,160))}”</p>
       <div class="qmeta"><span class="tag ${cls}"><span class="sw" style="background:currentColor"></span>${lbl}</span>${attr?`<span>${escHtml(attrCol)}: ${escHtml(attr)}</span>`:""}</div></div>`;
   }).join("");
+}
+
+/* Theme chip drill-down: clicking a recurring-theme button reveals the actual comments (from that
+   column, in the current filtered view) whose text contains the theme word/phrase; clicking the
+   same button again collapses it. One open theme per card at a time (accordion). */
+const THEME_DRILL_CAP = 25;
+function handleThemeClick(e){
+  const btn = e.target.closest(".theme");
+  if (!btn || btn.tagName !== "BUTTON") return;
+  const drill = document.getElementById(btn.dataset.drill);
+  if (!drill) return;
+  const card = btn.closest(".fb-card");
+  const wasOpen = btn.getAttribute("aria-expanded") === "true";
+
+  if (card) card.querySelectorAll(".theme").forEach(b=>b.setAttribute("aria-expanded","false"));
+  if (wasOpen){ drill.hidden = true; drill.innerHTML = ""; return; }
+
+  const col = drill.dataset.col;
+  const word = btn.dataset.word;
+  // Whole-word match (word boundary) so the "art" theme does not also pull in "smart".
+  const wordRe = new RegExp("\\b" + word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i");
+  const matches = filteredRows().map(r=>r[col]).filter(v=>!isBlank(v))
+    .filter(v=>wordRe.test(clean(v)));
+  const shown = matches.slice(0, THEME_DRILL_CAP);
+
+  drill.innerHTML = `<div class="theme-drill__label">Comments mentioning &ldquo;${escHtml(word)}&rdquo; (${fmtInt.format(matches.length)})</div>` +
+    (shown.length
+      ? `<div class="quotes">${shown.map(v=>`<div class="quote"><p>“${escHtml(truncate(clean(v),220))}”</p></div>`).join("")}</div>`
+      : `<p class="muted-note">No matching comments found.</p>`) +
+    (matches.length > THEME_DRILL_CAP ? `<div class="theme-drill__more">+ ${fmtInt.format(matches.length - THEME_DRILL_CAP)} more not shown.</div>` : ``);
+  drill.hidden = false;
+  btn.setAttribute("aria-expanded","true");
 }
 
 /* ============================================================================
@@ -1365,6 +1727,7 @@ function aiWire(){
    ============================================================================ */
 function clearData(){
   State.charts.forEach(c=>c.destroy()); State.charts=[];
+  if (State.compareChart){ State.compareChart.destroy(); State.compareChart=null; }
   $("report").hidden = true; $("uploadView").hidden = false;
   $("fileChip").classList.remove("is-on"); $("fileInput").value="";
   window.scrollTo({top:0, behavior: REDUCED?"auto":"smooth"});
@@ -1460,6 +1823,7 @@ function hydrateFromExport(data){
   State.filterCols.forEach(c => State.filters[c] = new Set());
   State.title = deriveTitle(data.fileName || "Survey results");
   State.purpose = clean(data.purpose || "");
+  State.compare = { metric: null, segment: null };
   // A baked verdict means the recipient sees the AI verdict with no key and no OpenAI call. If it is
   // absent, the heuristic verdict shows instead. Either way, hydrated exports never touch the network.
   State.aiVerdict = (data.aiVerdict && typeof data.aiVerdict === "object") ? data.aiVerdict : null;
@@ -1485,6 +1849,9 @@ async function exportInteractiveHtml(){
 
     // xlsx isn't needed to reopen an already-parsed report.
     html = html.replace(/<script[^>]*src=["']https:\/\/cdn\.jsdelivr\.net\/npm\/xlsx[^"']*["'][^>]*><\/script>/i, "");
+    // Strip Google Fonts <link>s so a shared file makes zero network calls offline. The live app still
+    // loads them; the export falls back to the system font stack in the CSS tokens (Georgia / system-ui).
+    html = html.replace(/<link[^>]*href=["']https:\/\/fonts\.(googleapis|gstatic)\.com[^"']*["'][^>]*>/gi, "");
 
     // Best-effort: inline Chart.js so filters + charts also work fully offline on reopen.
     const chartTagRe = /<script[^>]*src=["']https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js["'][^>]*><\/script>/i;
@@ -1540,6 +1907,10 @@ function init(){
 
   $("exportHtml").addEventListener("click", exportInteractiveHtml);
   $("exportPdf").addEventListener("click", ()=>window.print());
+
+  $("compareMetric").addEventListener("change", ()=>{ State.compare.metric = $("compareMetric").value; renderCompare(filteredRows()); });
+  $("compareSegment").addEventListener("change", ()=>{ State.compare.segment = $("compareSegment").value; renderCompare(filteredRows()); });
+  $("feedbackGrid").addEventListener("click", handleThemeClick);
 
   aiWire();
 
