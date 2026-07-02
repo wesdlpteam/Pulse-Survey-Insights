@@ -1317,8 +1317,8 @@ function renderFeedback(rows){
 
     // liked / could-be-better: drop lazy comments, split by sentiment, richer comments first
     const scored = values.map(v=>({text:clean(v),score:scoreSentiment(v),kw:tokenize(v).length})).filter(o=>!isLazyComment(o.text));
-    const liked = dedupe([...scored].filter(o=>o.score>0).sort((a,b)=> b.score-a.score || b.kw-a.kw)).slice(0,5);
-    const better = dedupe([...scored].filter(o=>o.score<0).sort((a,b)=> a.score-b.score || b.kw-a.kw)).slice(0,5);
+    const liked = dedupe([...scored].filter(o=>o.score>0).sort((a,b)=> b.score-a.score || b.kw-a.kw)).slice(0,3);
+    const better = dedupe([...scored].filter(o=>o.score<0).sort((a,b)=> a.score-b.score || b.kw-a.kw)).slice(0,3);
     const s = sentiment(values); const t=s.pos+s.neu+s.neg||1;
 
     const card = document.createElement("div"); card.className="card fb-card";
@@ -1496,6 +1496,16 @@ function aiGetConsent(){ try{ return localStorage.getItem(AI_CONSENT_STORAGE) ==
 function aiSetConsent(v){ try{ if (v) localStorage.setItem(AI_CONSENT_STORAGE, "1"); else localStorage.removeItem(AI_CONSENT_STORAGE); }catch{ /* ignore */ } }
 function aiVerdictEligible(){ return aiHasKey() && aiGetConsent(); }
 
+// If a report is already on screen and the user has just become eligible (saved a key / ticked consent),
+// run the AI verdict now, not only on the next upload. This is the common flow: upload, then paste key.
+function aiMaybeRunForCurrentReport(){
+  if (State.hydrated || State.aiAutoVerdictDone) return;
+  if (!State.rows || !State.rows.length) return;   // no report loaded yet
+  if (!aiVerdictEligible()) return;                 // need key + consent
+  State.aiAutoVerdictDone = true;
+  aiGenerateVerdict(filteredRows(), { auto:true });
+}
+
 function aiSaveKey(){
   const val = clean($("aiKey").value);
   if (!val){ aiSetKeyState("Paste your OpenAI key first, then save.", true); return; }
@@ -1504,6 +1514,7 @@ function aiSaveKey(){
   $("aiKey").value = "";
   aiSetKeyState("Key saved in this browser.");
   aiUpdateVerdictControls();
+  aiMaybeRunForCurrentReport();
 }
 function aiForgetKey(){
   try{ localStorage.removeItem(AI_KEY_STORAGE); }catch{ /* ignore */ }
@@ -1715,7 +1726,7 @@ function aiWire(){
   $("aiKeySave").addEventListener("click", aiSaveKey);
   $("aiKeyForget").addEventListener("click", aiForgetKey);
   $("aiConsent").checked = aiGetConsent();
-  $("aiConsent").addEventListener("change", ()=>{ aiSetConsent($("aiConsent").checked); aiUpdateVerdictControls(); });
+  $("aiConsent").addEventListener("change", ()=>{ aiSetConsent($("aiConsent").checked); aiUpdateVerdictControls(); aiMaybeRunForCurrentReport(); });
   const refreshBtn = $("aiVerdictRefresh");
   if (refreshBtn) refreshBtn.addEventListener("click", ()=>aiGenerateVerdict(filteredRows(), { auto:false }));
   aiSetKeyState();
